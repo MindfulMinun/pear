@@ -69,6 +69,24 @@ export function removeFromArraybyIndexes<T>(
 }
 
 /**
+ * Divides an array into two by a given predicate function. Those that pass are put into the first, the rest are put in the second.
+ * 
+ * @author MindfulMinun
+ * @since 2022-06-28
+ */
+export function divide<T>(list: T[], predicate: (this: typeof list, value: T, index: number, array: typeof list) => boolean): [T[], T[]] {
+    const pass: T[] = []
+    const fail: T[] = []
+
+    list.forEach((v, i, arr) => {
+        const passed = predicate.apply(list, [v, i, arr])
+        ;(passed ? pass : fail).push(v)
+    })
+
+    return [pass, fail]
+}
+
+/**
  * Shuffles an array. Note that this function swaps the elements
  * *in place*, meaning the original array is modified.
  * @since 2020-07-19
