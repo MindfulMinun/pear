@@ -49,6 +49,38 @@ export function* range(a: number, b?: number, c?: number) {
 }
 
 /**
+ * Given an iterable, yields the first `count` items, then returns.
+ * @author MindfulMinun
+ * @since 2022-07-07
+ */
+export function* limit<T>(count: number, iterable: Iterable<T>) {
+    let i = 0
+    for (const value of iterable) {
+        if (i < count) {
+            yield value
+            i++
+        } else break
+    }
+    return iterable
+}
+
+/**
+ * Given an async iterable, yields the first `count` items, then returns.
+ * @author MindfulMinun
+ * @since 2022-07-07
+ */
+export async function* limitAsync<T>(count: number, iterable: AsyncIterable<T>) {
+    let i = 0
+    for await (const value of iterable) {
+        if (i < count) {
+            yield value
+            i++
+        } else break
+    }
+    return iterable
+}
+
+/**
  * Removes elements from an array. Non-destructive, as all array operations should be :D
  *
  *     // Removes 'b', at index 1
@@ -106,7 +138,7 @@ export function shuffle<T>(arr: T[]): T[] {
  * @since 2020-07-19
  */
 export function swap<T>(arr: T[], i: number, j: number): void {
-    let carry = arr[i]
+    const carry = arr[i]
     arr[i] = arr[j]
     arr[j] = carry
 }
@@ -217,7 +249,7 @@ export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) =>
  * @author MindfulMinun
  * @since 2022-06-05
  */
-export function pinkyPromise<T>(): [Promise<T>, (value: T) => void, (error: any) => unknown] {
+export function pinkyPromise<T>(): [Promise<T>, (value: T) => void, (error: unknown) => unknown] {
     let resolve: (value: T) => void
     let reject: (error: unknown) => void
 
