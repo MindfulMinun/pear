@@ -45,7 +45,7 @@ export abstract class BaseRNG implements Iterable<number> {
     shuffle<T>(arr: T[]) {
         let i, j
         for (i = arr.length - 1; i > 0; i--) {
-            j = Math.floor(Math.random() * (i + 1))
+            j = Math.floor(this.float() * (i + 1))
             swap(arr, i, j)
         }
         return arr
