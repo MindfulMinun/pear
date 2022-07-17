@@ -239,8 +239,8 @@ export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) =>
  * // When awaited, this function returns a promise that resolves to
  * // an *OPEN* WebSocket
  * () => {
- *     const sock = new WebSocket()
- *     const [p, res, rej] = pinkyPromise()
+ *     const sock = new WebSocket('wss://wss.example.com')
+ *     const [p, res, rej] = pinkyPromise<typeof sock>()
  *     sock.onerror = err => rej(err)
  *     sock.onopen = () => res(sock)
  *     return p
@@ -249,15 +249,24 @@ export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) =>
  * @author MindfulMinun
  * @since 2022-06-05
  */
-export function pinkyPromise<T>(): [Promise<T>, (value: T) => void, (error: unknown) => unknown] {
-    let resolve: (value: T) => void
+export function pinkyPromise(): [Promise<void>, () => void, (reason?: unknown) => void]
+export function pinkyPromise<T>(): [Promise<T>, (value: T) => void, (reason?: unknown) => void]
+export function pinkyPromise<T>(): [
+    Promise<T | void>,
+    (value?: T | PromiseLike<T>) => void,
+    (reason?: unknown) => void
+] {
+    let resolve: (value?: T | PromiseLike<T>) => void
     let reject: (error: unknown) => void
 
     // This works because callbacks to the Promise constructor are called synchronously.
-    const p = new Promise<T>((yay, nay) => {
-        resolve = yay
-        reject = nay
+    const p = new Promise<T | void>((yay, nay) => {
+        resolve = value => yay(value)
+        reject = reason => nay(reason)
     })
 
+    // HACK: This works because callbacks to the Promise constructor are called synchronously.
+    // In other words, they're immediately invoked, so they're available immediately after
+    // the assignment to `p`
     return [p, resolve!, reject!]
 }
