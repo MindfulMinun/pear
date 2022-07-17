@@ -7,8 +7,8 @@ export const HTML_ESCAPES = {
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#x27;",
-    "/": "&#x2F;"
-}
+    "/": "&#x2F;",
+} as const
 
 /**
  * Removes indentation from multiline strings.
@@ -75,24 +75,27 @@ export function templateNoop(
     templ: TemplateStringsArray | string,
     ...values: unknown[]
 ): string {
-    const strings = Array.from(typeof templ === 'string' ? [templ] : templ)
-    return strings.reduce((result, currentString, i) =>
-        result + currentString + (values[i] != null ? values[i] : ''),
+    if (typeof templ === 'string') return templ
+    return templ.reduce((result, currentString, i) =>
+        result + currentString + (typeof values[i] !== 'undefined' ? values[i] : ''),
         '' // Start with the empty string
     )
 }
 
 /**
- * Promise that resolves after timeout
+ * Promise that resolves after timeout, optionally with a value to resolve with.
  *
- * ```js
+ * @example
  * // Play hide and seek, count to 100 (seconds)
+ * // Both methods are identical
  * wait(100e3).then(() => "Ready or not, here I come!").then(seek)
- * ```
+ * wait(100e3, "Ready or not, here I come!").then(seek)
  * @since 2020-06-23
  */
-export function wait(timeout: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, timeout))
+export function wait(timeout: number): Promise<void>
+export function wait<T>(timeout: number, resolveWith: T): Promise<T>
+export function wait<T>(timeout: number, resolveWith?: T): Promise<T | void> {
+    return new Promise(resolve => setTimeout(() => resolve(resolveWith), timeout))
 }
 
 /**

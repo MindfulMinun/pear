@@ -45,7 +45,7 @@ export function html(strings: TemplateStringsArray | string, ...exprs: unknown[]
             continue
         }
         // Otherwise, just join the expressions together, escaping dynamic content
-        out += strings[i] + (exprs[i] != null ? xss("" + exprs[i]) : "")
+        out += strings[i] + (typeof exprs[i] != 'undefined' ? xss("" + exprs[i]) : "")
     }
     temp.innerHTML = out
     const clone = temp.content.cloneNode(true) as DocumentFragment
