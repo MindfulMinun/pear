@@ -50,6 +50,38 @@ export abstract class BaseRNG implements Iterable<number> {
         }
         return arr
     }
+
+    /**
+     * Chooses an element from an array randomly, but with weighted probabilities.
+     * @param weights - An array of numbers. `weights[i]` corresponds to the probability
+     * of `items[i]` being chosen. The weights can be any nonnegative number, decimal or otherwise,
+     * and the sum of weights *does not* have to be 1.
+     * @example
+     * // 'paper' will be returned about half of the time, and 'rock' and 'scissors'
+     * // will be returned about a 1/4th of the time each.
+     * chooseWithWeights(
+     *    ['rock', 'paper', 'scissors'],
+     *    [1, 2, 1]
+     * )
+     * @author MindfulMinun
+     * @since 2022-07-16
+     */
+    chooseWithWeights<T>(items: T[], weights: number[]) {
+        if (items.length != weights.length) throw Error(`Expected items and weights to have the same number of elements, but items has ${items.length} elements, and weights has ${weights.length}.`)
+
+        const sumOfWeights = weights.reduce((acc, v) => acc + v)
+        const picked = this.float() * sumOfWeights
+
+        let i = 0
+        let currentSum = 0
+
+        for (; i < weights.length - 1; i++) {
+            currentSum += weights[i]
+            if (currentSum > picked) break
+        }
+
+        return items[i]
+    }
 }
 
 /**
