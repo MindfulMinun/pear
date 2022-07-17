@@ -75,7 +75,7 @@ export function templateNoop(
     templ: TemplateStringsArray | string,
     ...values: unknown[]
 ): string {
-    let strings = Array.from(typeof templ === 'string' ? [templ] : templ)
+    const strings = Array.from(typeof templ === 'string' ? [templ] : templ)
     return strings.reduce((result, currentString, i) =>
         result + currentString + (values[i] != null ? values[i] : ''),
         '' // Start with the empty string
@@ -105,5 +105,5 @@ export function wait(timeout: number): Promise<void> {
  * @since 2020-06-23
  */
 export function xss(unsafe: string): string {
-    return unsafe.replace(/[&<>"'\/]/g, (key) => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
+    return unsafe.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
 }

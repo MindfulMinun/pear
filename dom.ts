@@ -27,8 +27,8 @@ export { HTML_ESCAPES }
  * @since 2020-06-23
  */
 export function html(content: string): DocumentFragment
-export function html(strings: TemplateStringsArray, ...exprs: any[]): DocumentFragment
-export function html(strings: TemplateStringsArray | string, ...exprs: any[]): DocumentFragment {
+export function html(strings: TemplateStringsArray, ...exprs: unknown[]): DocumentFragment
+export function html(strings: TemplateStringsArray | string, ...exprs: unknown[]): DocumentFragment {
     const temp = document.createElement("template")
     let out = ""
 
@@ -55,7 +55,7 @@ export function html(strings: TemplateStringsArray | string, ...exprs: any[]): D
         if (!(node instanceof HTMLElement)) return
         if (!node.parentNode) return
         const index = parseInt(node.getAttribute("data-replaceindex") || "", 10)
-        node.parentNode.replaceChild(exprs[index], node);
+        node.parentNode.replaceChild(exprs[index] as Node, node);
     })
 
     return clone
@@ -67,8 +67,8 @@ export function html(strings: TemplateStringsArray | string, ...exprs: any[]): D
  * @since 2022-06-04
  */
 export function textNode(templ: string): Text
-export function textNode(templ: TemplateStringsArray, ...values: any[]): Text
-export function textNode(templ: string | TemplateStringsArray, ...values: any[]): Text {
+export function textNode(templ: TemplateStringsArray, ...values: unknown[]): Text
+export function textNode(templ: string | TemplateStringsArray, ...values: unknown[]): Text {
     const string = templateNoop(templ, ...values)
     return document.createTextNode(string)
 }
@@ -76,9 +76,9 @@ export function textNode(templ: string | TemplateStringsArray, ...values: any[])
 /**
  * Walks the DOM recursively, calling the callback for each node.
  * @deprecated
- * @param {Node} root The root of the DOM walk
- * @param {number} [filters] A bitmask of what nodes to show. Defaults to `NodeFilter.SHOW_ELEMENT`.
- * @param {(node: Node, root: Node, walker: TreeWalker) => boolean} callback If this callback returns true, stop tree traversal.
+ * @param root - The root of the DOM walk
+ * @param callback - If this callback returns true, stop tree traversal.
+ * @param filters - A bitmask of what nodes to show. Defaults to `NodeFilter.SHOW_ELEMENT`.
  * @author MindfulMinun
  * @since 2020-06-29
  */
