@@ -1,6 +1,6 @@
 import {
     choose, fill, range, limit
-} from "../iterable.ts"
+} from "../core/iterable.ts"
 
 import { assertThrows, assertEquals, assert } from "https://deno.land/std@0.140.0/testing/asserts.ts"
 
