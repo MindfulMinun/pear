@@ -158,7 +158,7 @@ export function swap<T>(arr: T[], i: number, j: number): void {
  * ```
  * @since 2021-08-07
  */
-export class EventStream<T> {
+export class EventStream<T> implements AsyncIterable<T> {
     #done: boolean
     #events: T[]
     #resolve: () => void
