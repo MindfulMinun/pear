@@ -1,14 +1,20 @@
-import * as Colors from 'https://deno.land/std/fmt/colors.ts'
+import * as Colors from "https://deno.land/std@0.157.0/fmt/colors.ts"
 
 type UUID = ReturnType<typeof crypto.randomUUID>
 
 export type VertexType<G> = G extends Graph<infer T, infer V> ? Vertex<T, V> : never
 export type EdgeType<G> = G extends Graph<infer T, infer V> ? Edge<T, V> : never
-export type WeightFn<Graph> = (v: VertexType<Graph>, e: EdgeType<Graph>) => number
+export type PathType<G> = G extends Graph<infer T, infer V> ? Path<T, V> : never
+export type WeightFn<Graph> = (this: Graph, e: EdgeType<Graph>) => number
 
 interface GraphOpts<G> {
     directed: boolean
     weights: WeightFn<G>
+}
+
+interface EdgeOpts {
+    directed: boolean
+    id: UUID
 }
 
 /**
@@ -46,6 +52,19 @@ export class Graph<vData, eData> {
         this.vertices.delete(V.id)
     }
 
+    createEdge(u: Vertex<vData, eData>, v: Vertex<vData, eData>, data: eData, opts: Partial<EdgeOpts> = {}) {
+        const options: EdgeOpts = {
+            directed: this.directed,
+            id: crypto.randomUUID(),
+            ...opts
+        }
+        const E = new Edge(this, options.id, u, v, options.directed, data)
+        this.edges.set(options.id, E)
+        v.adjacentEdges.add(E)
+        u.adjacentEdges.add(E)
+        return E
+    }
+
     deleteEdge(E: Edge<vData, eData>) {
         // Remove me from the caches of my connecting nodes, then delete me
         E.u.adjacentEdges.delete(E)
@@ -53,18 +72,6 @@ export class Graph<vData, eData> {
         this.edges.delete(E.id)
     }
 
-    createEdge(
-        u: Vertex<vData, eData>,
-        v: Vertex<vData, eData>,
-        data: eData,
-        id: UUID = crypto.randomUUID()
-    ): Edge<vData, eData> {
-        const E = new Edge(this, id, u, v, data)
-        this.edges.set(id, E)
-        v.adjacentEdges.add(E)
-        u.adjacentEdges.add(E)
-        return E
-    }
 
     createPath(start: Vertex<vData, eData>) {
         return new Path<vData, eData>(this, start)
@@ -98,7 +105,7 @@ export class Graph<vData, eData> {
 
         for (const E of obj.e) {
             if (!Array.isArray(E)) throw Error("Failed to parse: One of the edges isn't a tuple!")
-            const [uuid, u, v, data] = E as [UUID, UUID, UUID, eData]
+            const [uuid, u, v, isDirected, data] = E as [UUID, UUID, UUID, boolean, eData]
             if (typeof uuid != 'string') throw Error("Failed to parse: UUID wasn't a string!")
             if (typeof u != 'string') throw Error("Failed to parse: U wasn't a string!")
             if (typeof v != 'string') throw Error("Failed to parse: V wasn't a string!")
@@ -106,9 +113,13 @@ export class Graph<vData, eData> {
             const U = G.vertices.get(u)
             const V = G.vertices.get(v)
 
-            if (!U || !V) throw Error("Failed to parse: A vertex is never defined!")
+            if (!U) throw Error(`Vertex ${U} doesn't exist!`)
+            if (!V) throw Error(`Vertex ${V} doesn't exist!`)
 
-            G.createEdge(U, V, data, uuid)
+            G.createEdge(U, V, data, {
+                id: uuid,
+                directed: isDirected
+            })
         }
 
         return G
@@ -162,11 +173,20 @@ export class Edge<vData, eData> {
     id: UUID
     u: Vertex<vData, eData>
     v: Vertex<vData, eData>
+    directed: boolean
 
-    constructor(parentGraph: Graph<vData, eData>, id: UUID, u: Vertex<vData, eData>, v: Vertex<vData, eData>, data: eData) {
+    constructor(
+        parentGraph: Graph<vData, eData>,
+        id: UUID,
+        u: Vertex<vData, eData>,
+        v: Vertex<vData, eData>,
+        directed: boolean,
+        data: eData
+    ) {
         this.graph = parentGraph
         this.data = data
         this.id = id
+        this.directed = directed
 
         if (u.graph !== v.graph || u.graph !== parentGraph) throw Error("Both vertices and the new edge must all belong to the same graph.")
         
@@ -182,23 +202,24 @@ export class Edge<vData, eData> {
     delete() { this.graph.deleteEdge(this) }
 
     representAsJSON() {
+        // tuple!
         return [
             this.id,
             this.u.id,
             this.v.id,
+            this.directed,
             this.data
         ]
     }
 
     toString() {
-        return Colors.magenta(`<${this.id.slice(0, 8)}>: ${this.u} ${!this.graph.directed ? '<' : ''}--> ${this.v}`)
+        return Colors.magenta(`<${this.id.slice(0, 8)}>: ${this.u} ${!this.directed ? '<' : ''}--> ${this.v}`)
     }
 
     [Symbol.for("Deno.customInspect")]() {
         return this.toString()
     }
 }
-
 
 export class Path<vData, eData> {
     graph: Graph<vData, eData>
@@ -230,5 +251,11 @@ export class Path<vData, eData> {
         }
 
         return vertices
+    }
+
+    copy() {
+        const path = new Path<vData, eData>(this.graph, this.start ?? undefined)
+        path.edges = this.edges.slice()
+        return path
     }
 }
