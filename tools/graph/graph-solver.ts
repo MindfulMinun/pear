@@ -1,4 +1,5 @@
-import { Graph, VertexType, EdgeType, Path, Vertex, PathType } from "./graph.ts";
+import { Graph, VertexType, EdgeType, Path, Vertex, PathType } from "./graph.ts"
+import { Queue, Stack } from "../iterables.ts"
 
 /**
  * Describes a search function for DFS and BFS.
@@ -18,44 +19,38 @@ export class GraphSolver<vData, eData> {
     /**
      * Performs a breadth-first search on a graph. Returns the path from the root to the found node.
      * @author MindfulMinun
-     * @since 2022-09-28
+     * @since 2022-10-23
      */
     BFS(root: Vertex<vData, eData>, search: SearchFn<typeof this.G>): Path<vData, eData> | null {
-        const queue = [root]
+        const queue = new Queue([root])
         const backPaths = new Map<Vertex<vData, eData>, Path<vData, eData>>()
+
         const discovered = new WeakSet<typeof root>()
         discovered.add(root)
 
-        let v: VertexType<typeof this.G> | null = root
         backPaths.set(root, this.G.createPath(root))
 
-        while (queue.length !== 0) {
-            v = queue.shift()!
+        for (const v of queue) {
             const found = search(v, backPaths.get(v)?.edges.at(-1) ?? null, backPaths)
+            if (found) return backPaths.get(v) ?? null
 
-            if (found) break
             for (const E of v.adjacentEdges) {
                 if (E.directed && v !== E.u) continue
                 const w = E.not(v)
-        
+
                 if (!discovered.has(w)) {
                     discovered.add(w)
-
                     const path = backPaths.get(v)!.copy()
                     path.addEdge(E)
                     backPaths.set(w, path)
-
-                    queue.push(w)
+                    queue.enqueue(w)
                 }
             }
-            // If we iterate through all vertices without finding one that fulfills `search`,
-            // then the found vertex is null and we should return null
-            v = null
         }
 
-        if (v === null) return null
-
-        return backPaths.get(v) ?? null
+        // If we iterate through all vertices without finding one that fulfills `search`,
+        // then the found vertex is null and we should return null
+        return null
     }
 
     /**
@@ -64,37 +59,26 @@ export class GraphSolver<vData, eData> {
      * @since 2022-09-28
      */
     DFS(root: Vertex<vData, eData>, search: SearchFn<typeof this.G>): Path<vData, eData> | null {
-        const stack = [root]
+        const stack = new Stack([root])
         const backPaths = new Map<VertexType<typeof this.G>, Path<vData, eData>>()
 
-        // const discovered = new WeakSet<typeof root>()
-        // discovered.add(root)
-
-        let v: VertexType<typeof this.G> | null = root
         backPaths.set(root, this.G.createPath(root))
 
-        while (stack.length !== 0) {
-            v = stack.pop()!
+        for (const v of stack) {
             const found = search(v, backPaths.get(v)?.edges.at(-1) ?? null, backPaths)
+            if (found) return backPaths.get(v) ?? null
 
-            if (found) break
             for (const E of v.adjacentEdges) {
                 if (E.directed && v !== E.u) continue
                 const w = E.not(v)
-                // discovered.add(w)
-                stack.unshift(w)
-
+                stack.push(w)
                 // Update the path!
                 const path = backPaths.get(v)!.copy()
                 path.addEdge(E)
                 backPaths.set(w, path)
-                
             }
-            v = null
         }
 
-        if (v === null) return null
-
-        return backPaths.get(v) ?? null
+        return null
     }
 }
