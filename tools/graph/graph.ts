@@ -77,15 +77,22 @@ export class Graph<vData, eData> {
         return new Path<vData, eData>(this, start)
     }
 
-    toJSON() {
+    toJSON(
+        vertexReplacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data,
+        edgeReplacer: (this: Graph<vData, eData>, data: eData) => unknown = data => data
+    ) {
         return {
             "@graph": Graph.signature,
-            v: Array.from(this.vertices.values()).map(val => val.representAsJSON()),
-            e: Array.from(this.edges.values()).map(val => val.representAsJSON())
+            v: Array.from(this.vertices.values()).map(v => v.toJSON(vertexReplacer)),
+            e: Array.from(this.edges.values()).map(e => e.toJSON(edgeReplacer))
         }
     }
 
-    static fromJSON<vData, eData>(json: unknown) {
+    static fromJSON<vData, eData>(
+        json: unknown,
+        vertexReviver: (this: Graph<vData, eData>, json: unknown) => vData = data => data as vData,
+        edgeReviver: (this: Graph<vData, eData>, json: unknown) => eData = data => data as eData
+    ) {
         const G = new Graph<vData, eData>()
 
         if (!json || typeof json !== 'object') throw Error("Failed to parse: Unexpected object!")
@@ -100,7 +107,7 @@ export class Graph<vData, eData> {
             if (!Array.isArray(V)) throw Error("Failed to parse: One of the vertices isn't a tuple!")
             const [uuid, data] = V as [UUID, vData]
             if (typeof uuid != 'string') throw Error("Failed to parse: Unexpected UUID!")
-            G.createVertex(data, uuid)
+            G.createVertex(vertexReviver.call(G, data), uuid)
         }
 
         for (const E of obj.e) {
@@ -116,7 +123,7 @@ export class Graph<vData, eData> {
             if (!U) throw Error(`Vertex ${U} doesn't exist!`)
             if (!V) throw Error(`Vertex ${V} doesn't exist!`)
 
-            G.createEdge(U, V, data, {
+            G.createEdge(U, V, edgeReviver.call(G, data), {
                 id: uuid,
                 directed: isDirected
             })
@@ -149,8 +156,8 @@ export class Vertex<VertexData, EdgeData> {
 
     delete() { this.graph.deleteVertex(this) }
 
-    representAsJSON() {
-        return [this.id, this.data]
+    toJSON(replacer: (this: Graph<VertexData, EdgeData>, data: VertexData) => unknown = data => data) {
+        return [this.id, replacer.call(this.graph, this.data)]
     }
 
     toString() {
@@ -201,14 +208,14 @@ export class Edge<vData, eData> {
 
     delete() { this.graph.deleteEdge(this) }
 
-    representAsJSON() {
+    toJSON(replacer: (this: Graph<vData, eData>, data: eData) => unknown = data => data) {
         // tuple!
         return [
             this.id,
             this.u.id,
             this.v.id,
             this.directed,
-            this.data
+            replacer.call(this.graph, this.data)
         ]
     }
 
