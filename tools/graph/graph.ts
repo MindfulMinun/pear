@@ -225,20 +225,26 @@ export class Path<vData, eData> {
     graph: Graph<vData, eData>
     start: Vertex<vData, eData> | null
     edges: Edge<vData, eData>[]
+    /** An internal cache of the vertices. */
+    #vertices: Vertex<vData, eData>[] | null
 
     constructor(graph: Graph<vData, eData>, start?: Vertex<vData, eData>) {
         this.graph = graph
         this.edges = []
         this.start = start ?? null
+        this.#vertices = null
     }
 
     addEdge(e: Edge<vData, eData>) {
         if (!this.start) this.start = e.u
         if (e.graph !== this.graph) throw Error("The edges in a path must all belong to the same graph.")
         this.edges.push(e)
+        this.#vertices = null
     }
 
     get vertices() {
+        if (this.#vertices) return this.#vertices
+
         const vertices: Vertex<vData, eData>[] = []
         if (!this.start) return vertices
 
@@ -250,12 +256,14 @@ export class Path<vData, eData> {
             vertices.push(current)
         }
 
-        return vertices
+        this.#vertices = vertices
+        return this.#vertices
     }
 
     copy() {
         const path = new Path<vData, eData>(this.graph, this.start ?? undefined)
         path.edges = this.edges.slice()
+        path.#vertices = this.#vertices?.slice() ?? null
         return path
     }
 }

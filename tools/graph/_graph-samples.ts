@@ -41,11 +41,11 @@ export function g1() {
  * 
  * 
  * ```plaintext
- *      0
+ *      A
  *    /   \
- *   1     2
+ *   B     C
  *  / \   / \
- * 3   4 5   6
+ * D   E F   G
  * ```
  */
 export function g2() {
@@ -61,12 +61,12 @@ export function g2() {
         G.createVertex(null, 'G')
     ]
 
-    G.createEdge(vertices[0], vertices[1], null)
-    G.createEdge(vertices[0], vertices[2], null)
-    G.createEdge(vertices[1], vertices[3], null)
-    G.createEdge(vertices[1], vertices[4], null)
-    G.createEdge(vertices[2], vertices[5], null)
-    G.createEdge(vertices[2], vertices[6], null)
+    G.createEdge(vertices[0], vertices[1], null, { id: 'AB' })
+    G.createEdge(vertices[0], vertices[2], null, { id: 'AC' })
+    G.createEdge(vertices[1], vertices[3], null, { id: 'BD' })
+    G.createEdge(vertices[1], vertices[4], null, { id: 'BE' })
+    G.createEdge(vertices[2], vertices[5], null, { id: 'CF' })
+    G.createEdge(vertices[2], vertices[6], null, { id: 'CG' })
 
     return G
 }
