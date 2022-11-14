@@ -17,6 +17,7 @@ export { HTML_ESCAPES }
  *     ${html`<em>Look ma, nested HTML!</em>`}
  *     ${`<img src="/bogus/path" onerror="alert('xss')">`}
  * </strong>`
+ *
  * // DocumentFragment
  * // └─ strong
  * //    ├─ em

@@ -10,17 +10,6 @@ export type Tuple<
 > = R['length'] extends N ? R : Tuple<T, N, readonly [T, ...R]>;
 
 /**
- * Chooses a random element from an array
- *
- *     choose(document.all).click()
- * @since 2020-06-29
- */
-export function choose<T>(arr: T[]): T {
-    if (!arr.length) throw new Error('Cannot choose from an empty array')
-    return arr[Math.floor(Math.random() * arr.length)]
-}
-
-/**
  * Creates an iterable that always yields the given value.
  * @author MindfulMinun
  * @since 2022-04-21
@@ -61,7 +50,7 @@ export function* limit<T>(count: number, iterable: Iterable<T>) {
             i++
         } else break
     }
-    return iterable
+    return
 }
 
 /**
@@ -77,7 +66,7 @@ export async function* limitAsync<T>(count: number, iterable: AsyncIterable<T>) 
             i++
         } else break
     }
-    return iterable
+    return
 }
 
 /**
@@ -116,6 +105,17 @@ export function divide<T>(list: T[], predicate: (this: typeof list, value: T, in
     })
 
     return [pass, fail]
+}
+
+/**
+ * Chooses a random element from an array
+ *
+ *     choose(document.all).click()
+ * @since 2020-06-29
+ */
+ export function choose<T>(arr: T[]): T {
+    if (!arr.length) throw new Error('Cannot choose from an empty array')
+    return arr[Math.floor(Math.random() * arr.length)]
 }
 
 /**

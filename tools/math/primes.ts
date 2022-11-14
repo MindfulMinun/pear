@@ -66,6 +66,8 @@ function _isPrime(n: number) {
 
 /**
  * Verify if a given number is prime.
+ * @author MindfulMinun
+ * @since 2022-10-13
  */
 export function isPrime(n: number): boolean {
     // To verify if a number is prime, we only need to check if it is divisible by
