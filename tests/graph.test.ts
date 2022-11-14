@@ -1,7 +1,7 @@
-import { g1, g2 } from '../tools/graph/_graph-samples.ts'
+import { g1, g2, g3 } from '../tools/graph/_graph-samples.ts'
 import { GraphSolver } from '../tools/graph/graph-solver.ts'
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
-import { Path } from "../tools/graph/graph.ts";
+import { Path } from "../tools/graph/graph.ts"
 
 // TODO: Add more tests!
 
@@ -36,6 +36,18 @@ Deno.test('GraphSolver::DFS w/ g1', () => {
         path,
         ['A', 'C', 'F', 'E'],
         ['AC', 'CF', 'EF']
+    )
+})
+
+Deno.test('GraphSolver::bidi', () => {
+    const G = g3()
+    const solver = new GraphSolver(G)
+    const path = solver.bidi(G.vertices.get('A')!, G.vertices.get('E')!)
+
+    assertPathsEqual(
+        path,
+        'ABCDE'.split(''),
+        'AB-BC-CD-DE'.split('-')
     )
 })
 

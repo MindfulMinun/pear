@@ -1,5 +1,5 @@
-import { Graph, VertexType, EdgeType, Path, Vertex, PathType } from "./graph.ts"
-import { Queue, Stack } from "../iterables.ts"
+import { Graph, Vertex, VertexType, EdgeType, Path, PathType } from "./graph.ts"
+import { Queue, Stack } from "../structures.ts"
 
 /**
  * Describes a search function for DFS and BFS.
@@ -78,7 +78,74 @@ export class GraphSolver<vData, eData> {
                 backPaths.set(w, path)
             }
         }
+        return null
+    }
 
+    /**
+     * Performs a bidirectional search on a graph. Returns the shortest path from `left` to `right`.
+     * @author MindfulMinun
+     * @since 2022-11-14
+     */
+    bidi(left: Vertex<vData, eData>, right: Vertex<vData, eData>): Path<vData, eData> | null {
+        const qL = new Queue([left])
+        const qR = new Queue([right])
+
+        // Map a vertex to the path that led to it. Note that paths from the right
+        // will be reversed so they can be concatenated with the paths from the left.
+        const backL = new Map<Vertex<vData, eData>, Path<vData, eData>>()
+        const backR = new Map<Vertex<vData, eData>, Path<vData, eData>>()
+        
+        backL.set(left, this.G.createPath(left))
+        backR.set(right, this.G.createPath(right))
+
+        const seenL = new Set<Vertex<vData, eData>>([left])
+        const seenR = new Set<Vertex<vData, eData>>([right])
+
+        while (qL.length && qR.length) {
+            const l = qL.dequeue()!
+            const r = qR.dequeue()!
+
+            // The left side will traverse the graph normally,
+            // following the direction of the arrows in the edges
+            for (const E of l.adjacentEdges) {
+                if (E.directed && l !== E.u) continue
+                const w = E.not(l)
+                if (!seenL.has(w)) {
+                    seenL.add(w)
+                    const path = backL.get(l)!.copy()
+                    path.addEdge(E)
+                    backL.set(w, path)
+                    qL.enqueue(w)
+                }
+            }
+
+            // For the right side, we will traverse the graph backwards
+            // So, against the direction of the arrows :)
+            for (const E of r.adjacentEdges) {
+                // Compare against v since edges always point to v,
+                // Edge u -> v
+                if (E.directed && r !== E.v) continue
+                const w = E.not(r)
+                if (!seenR.has(w)) {
+                    seenR.add(w)
+                    const path = backR.get(r)!.copy()
+                    path.addEdge(E)
+                    backR.set(w, path)
+                    qR.enqueue(w)
+                }
+            }
+
+            // If we find a vertex that has been seen from both sides, then we have found a path!
+            const midpoint = [...seenL].find(x => seenR.has(x))
+            if (!midpoint) continue
+            // console.log("Midpoint:", midpoint)
+            
+            // Concatenate the paths from the left and right to get the shortest path
+            // Flip the path from the right so it's in the correct order
+            const path = backL.get(midpoint)!.copy()
+            path.edges.push(...backR.get(midpoint)!.edges.reverse())
+            return path
+        }
         return null
     }
 }
