@@ -5,6 +5,7 @@ type UUID = ReturnType<typeof crypto.randomUUID>
 export type VertexType<G> = G extends Graph<infer T, infer V> ? Vertex<T, V> : never
 export type EdgeType<G> = G extends Graph<infer T, infer V> ? Edge<T, V> : never
 export type PathType<G> = G extends Graph<infer T, infer V> ? Path<T, V> : never
+/** Given an edge, this function should return the weight of that edge. */
 export type WeightFn<Graph> = (this: Graph, e: EdgeType<Graph>) => number
 
 interface GraphOpts<G> {
@@ -23,9 +24,16 @@ interface EdgeOpts {
  * @since 2022-07-26
  */
 export class Graph<vData, eData> {
-    vertices: Map<UUID, Vertex<vData, eData>>
-    edges: Map<UUID, Edge<vData, eData>>
+    /** A map of the vertices in the graph. To add a new vertex, please use the {@link Graph.createVertex} method instead. */
+    readonly vertices: Map<UUID, Vertex<vData, eData>>
+    /** A map of the edges in the graph. To add a new edge, please use the {@link Graph.createEdge} method instead. */
+    readonly edges: Map<UUID, Edge<vData, eData>>
+    /**
+     * Whether or not edges created in the graph are directed when the value is omitted.
+     * Note that edges created with the `directed` option will use that value instead.
+     */
     directed: boolean
+    /** A function that returns the weight of an edge. */
     weights: WeightFn<typeof this>
 
     constructor(opts: Partial<GraphOpts<Graph<vData, eData>>> = {}) {
@@ -142,9 +150,13 @@ export class Graph<vData, eData> {
  */
 
 export class Vertex<VertexData, EdgeData> {
+    /* The graph this vertex belongs to */
     graph: Graph<VertexData, EdgeData>
+    /* The value stored in this vertex, up to you! */
     data: VertexData
+    /* The unique identifier of this vertex */
     id: UUID
+    /* The edges connected to this vertex */
     adjacentEdges: Set<Edge<VertexData, EdgeData>>
 
     constructor(parentGraph: Graph<VertexData, EdgeData>, id: UUID, data: VertexData) {
@@ -175,11 +187,17 @@ export class Vertex<VertexData, EdgeData> {
  * @since 2022-07-26
  */
 export class Edge<vData, eData> {
+    /** The graph this edge belongs to */
     graph: Graph<vData, eData>
+    /** The value stored in this edge, up to you! */
     data: eData
+    /** A unique identifier for this edge. */
     id: UUID
+    /** If directed, the vertex that this edge is coming from. */
     u: Vertex<vData, eData>
+    /** If directed, the vertex that this edge is going to */
     v: Vertex<vData, eData>
+    /** Whether or not this edge is directed */
     directed: boolean
 
     constructor(
@@ -195,7 +213,8 @@ export class Edge<vData, eData> {
         this.id = id
         this.directed = directed
 
-        if (u.graph !== v.graph || u.graph !== parentGraph) throw Error("Both vertices and the new edge must all belong to the same graph.")
+        if (u.graph !== v.graph || u.graph !== parentGraph)
+            throw Error("Both vertices and the new edge must all belong to the same graph.")
         
         this.u = u
         this.v = v
@@ -229,8 +248,11 @@ export class Edge<vData, eData> {
 }
 
 export class Path<vData, eData> {
+    /** The graph this path belongs to */
     graph: Graph<vData, eData>
+    /** The vertex this path starts with */
     start: Vertex<vData, eData> | null
+    /** The edges belonging to this path */
     edges: Edge<vData, eData>[]
     /** An internal cache of the vertices. */
     #vertices: Vertex<vData, eData>[] | null
@@ -249,6 +271,7 @@ export class Path<vData, eData> {
         this.#vertices = null
     }
 
+    /** The vertices belonging to this path */
     get vertices() {
         if (this.#vertices) return this.#vertices
 
