@@ -122,17 +122,21 @@ export function divide<T>(list: T[], predicate: (this: typeof list, value: T, in
 }
 
 /**
+ * @deprecated Use the `choose` method on the `Random` class from `core/rng.ts#Random` instead!
+ * 
  * Chooses a random element from an array
  *
  *     choose(document.all).click()
  * @since 2020-06-29
  */
- export function choose<T>(arr: T[]): T {
+export function choose<T>(arr: T[]): T {
     if (!arr.length) throw new Error('Cannot choose from an empty array')
     return arr[Math.floor(Math.random() * arr.length)]
 }
 
 /**
+ * @deprecated Use the `shuffle` method on the `Random` class from `core/rng.ts#Random` instead!
+ * 
  * Shuffles an array. Note that this function swaps the elements
  * *in place*, meaning the original array is modified.
  * @since 2020-07-19
