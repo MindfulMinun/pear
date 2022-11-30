@@ -29,7 +29,7 @@ Deno.test("range: one arg", () => {
     assert(iter.next().done)
 })
 
-Deno.test("range: two args", () => {
+Deno.test("range: two args, positive", () => {
     const iter = range(40, 50)
     for (let i = 40; i < 50; i++) {
         const next = iter.next()
@@ -38,7 +38,16 @@ Deno.test("range: two args", () => {
     assert(iter.next().done)
 })
 
-Deno.test("range: three args", () => {
+Deno.test("range: two args, negative", () => {
+    const iter = range(50, 40)
+    for (let i = 50; i > 40; i--) {
+        const next = iter.next()
+        assertEquals(next.value, i)
+    }
+    assert(iter.next().done)
+})
+
+Deno.test("range: three args, positive", () => {
     const iter = range(60, 80, 4)
     for (let i = 60; i < 80; i += 4) {
         const next = iter.next()
@@ -47,6 +56,14 @@ Deno.test("range: three args", () => {
     assert(iter.next().done)
 })
 
+Deno.test("range: three args, negative", () => {
+    const iter = range(80, 60, 4)
+    for (let i = 80; i > 60; i -= 4) {
+        const next = iter.next()
+        assertEquals(next.value, i)
+    }
+    assert(iter.next().done)
+})
 
 Deno.test("limit: limits to the first n elements", () => {
     const values: number[] = []
