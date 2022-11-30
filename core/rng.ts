@@ -10,7 +10,7 @@ import { swap } from './iterable.ts'
  * @author MindfulMinun
  * @since 2022-07-08
  */
-export abstract class BaseRNG implements Iterable<number> {
+export abstract class RNG implements Iterable<number> {
     /**
      * This is the main number generation function. It should return a number
      * between 0 (inclusive) and 1 (exclusive) as well as update its internal state.
@@ -82,7 +82,7 @@ export abstract class BaseRNG implements Iterable<number> {
      * @example
      * // 'paper' will be returned about half of the time, and 'rock' and 'scissors'
      * // will be returned about a 1/4th of the time each.
-     * chooseWithWeights(
+     * BaseClass.chooseWithWeights(
      *    ['rock', 'paper', 'scissors'],
      *    [1, 2, 1]
      * )
@@ -112,7 +112,7 @@ export abstract class BaseRNG implements Iterable<number> {
  * @author MindfulMinun
  * @since 2022-07-08
  */
-export class Random extends BaseRNG {
+export class Random extends RNG {
     nextValue() { return Math.random() }
 }
 
@@ -121,7 +121,7 @@ export class Random extends BaseRNG {
  * @author MindfulMinun
  * @since 2022-07-08
  */
-export class Mulberry32 extends BaseRNG {
+export class Mulberry32 extends RNG {
     #seed!: number
     originalSeed!: number
 
