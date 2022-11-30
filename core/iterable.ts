@@ -1,13 +1,13 @@
 /**
- * Represents a tuple, or a homogenous array of a fixed length.
+ * Represents a homogenous array of a fixed length.
  * 
- *     const deck: Tuple<Card, 52> = [Card, Card, Card, ...];
+ *     const deck: Repeated<Card, 52> = [Card, Card, Card, ...];
  */
-export type Tuple<
- T,
- N extends number,
- R extends readonly T[] = [],
-> = R['length'] extends N ? R : Tuple<T, N, readonly [T, ...R]>;
+export type Repeated<
+    T,
+    N extends number,
+    R extends readonly T[] = [],
+> = R['length'] extends N ? R : Repeated<T, N, readonly [T, ...R]>;
 
 /**
  * Creates an iterable that always yields the given value.
@@ -20,7 +20,18 @@ export function* fill<T>(value = 0 as unknown as T, length = Infinity): Generato
 }
 
 /**
- * Creates an iterable that yields numbers between a range.
+ * A ganerator that yields numbers between a range, akin to Python's {@link https://docs.python.org/3.11/library/stdtypes.html#ranges range}.
+ * If `start` is greater than `end`, the range will decrement accordingly
+ * 
+ * @example
+ * for (const i of range(10)) {
+ *    console.log(i) // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+ * }
+ * range(6)        // ->  0, 1, 2, 3, 4, 5
+ * range(3, 9)     // ->  3, 4, 5, 6, 7, 8
+ * range(9, 3)     // ->  9, 8, 7, 6, 5, 4
+ * range(0, 10, 2) // ->  0, 2, 4, 6, 8
+ * range(10, 0, 2) // -> 10, 8, 6, 4, 2
  * @author MindfulMinun
  * @since 2022-04-27
  */
@@ -32,8 +43,11 @@ export function* range(a: number, b?: number, c?: number) {
         typeof b === "undefined" ? [0, a, 1] :
         typeof c === "undefined" ? [a, b, 1] : [a, b, Math.abs(c)]
     )
-    const delta = end < start ? -step : step
-    for (let i = start; i < end; i += delta)
+
+    const positive = start < end
+    const delta = positive ? step : -step
+
+    for (let i = start; positive ? i < end : end < i; i += delta)
         yield i
 }
 
@@ -141,132 +155,4 @@ export function swap<T>(arr: T[], i: number, j: number): void {
     const carry = arr[i]
     arr[i] = arr[j]
     arr[j] = carry
-}
-
-/**
- * Helper class to handle events and turn them into async iterables
- *
- * ```ts
- * const stream = new EventStream<MouseEvent>()
- * 
- * document.body.addEventListener('click', ev => stream.emit(ev))
- * wait(10e3).then(() => stream.end())
- * 
- * for await (const event of stream) {
- *     alert("Clicked!")
- * }
- * ```
- * @since 2021-08-07
- */
-export class EventStream<T> implements AsyncIterable<T> {
-    #done: boolean
-    #events: T[]
-    #resolve: () => void
-    #promise!: Promise<void>
-
-    constructor() {
-        this.#done = false
-        this.#events = []
-        this.#resolve = () => { }
-        this.#defer()
-    }
-
-    #defer() {
-        this.#promise = new Promise(r => this.#resolve = r)
-    }
-
-    async*[Symbol.asyncIterator]() {
-        while (!this.#done) {
-            await this.#promise
-            yield* this.#events
-            this.#events = []
-        }
-    }
-
-    /**
-     * Dispatches an event. For-await-of listeners of this class instance will recieve this event.
-     * Note that once an event is emitted, it cannot be cancelled.
-     * @since 2021-08-07
-     */
-    emit(event: T) {
-        this.#events.push(event)
-        this.#resolve()
-        this.#defer()
-    }
-
-    /**
-     * Waits for a specific event to be emitted according to a predicate.
-     * 
-     * @example
-     * const stream = new EventStream<MouseEvent>()
-     * // Some events happen...
-     * const click = stream.once(ev => ev.type === 'click')
-     * @since 2021-12-22
-     */
-    once(predicate: (value: T) => boolean) {
-        return once(this, predicate)
-    }
-    
-    /**
-     * Stops the iterator. This terminates for-await-of loops listening for events,
-     * and any newly dispatched events will not be sent to the iterator.
-     * @since 2021-08-07
-     */
-    end() {
-        this.#done = true
-        this.#resolve()
-    }
-}
-
-/**
- * Wait for any async iterable to yield a specific value according to a predicate.
- * 
- * @example
- * const stream = new EventStream<MouseEvent>()
- * // Some events happen...
- * const click = once(stream, ev => ev.type === 'click')
- * @since 2021-12-22
- */
-export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) => boolean) {
-    for await (const value of source) {
-        if (predicate(value)) return value
-    }
-}
-
-/**
- * A "destructured" Promise, useful for waiting for callbacks.
- * @example
- * // When awaited, this function returns a promise that resolves to
- * // an *OPEN* WebSocket
- * () => {
- *     const sock = new WebSocket('wss://wss.example.com')
- *     const [p, res, rej] = pinkyPromise<typeof sock>()
- *     sock.onerror = err => rej(err)
- *     sock.onopen = () => res(sock)
- *     return p
- * }
- * 
- * @author MindfulMinun
- * @since 2022-06-05
- */
-export function pinkyPromise(): [Promise<void>, () => void, (reason?: unknown) => void]
-export function pinkyPromise<T>(): [Promise<T>, (value: T) => void, (reason?: unknown) => void]
-export function pinkyPromise<T>(): [
-    Promise<T | void>,
-    (value?: T | PromiseLike<T>) => void,
-    (reason?: unknown) => void
-] {
-    let resolve: (value?: T | PromiseLike<T>) => void
-    let reject: (error: unknown) => void
-
-    // This works because callbacks to the Promise constructor are called synchronously.
-    const p = new Promise<T | void>((yay, nay) => {
-        resolve = value => yay(value)
-        reject = reason => nay(reason)
-    })
-
-    // HACK: This works because callbacks to the Promise constructor are called synchronously.
-    // In other words, they're immediately invoked, so they're available immediately after
-    // the assignment to `p`
-    return [p, resolve!, reject!]
 }

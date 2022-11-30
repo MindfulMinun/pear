@@ -1,7 +1,7 @@
 /**
  * HTML escape sequences for unsafe characters
  */
-export const HTML_ESCAPES = {
+ export const HTML_ESCAPES = {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -83,22 +83,6 @@ export function templateNoop(
 }
 
 /**
- * Promise that resolves after timeout, optionally with a value to resolve with.
- *
- * @example
- * // Play hide and seek, count to 100 (seconds)
- * // Both methods are identical
- * wait(100e3).then(() => "Ready or not, here I come!").then(seek)
- * wait(100e3, "Ready or not, here I come!").then(seek)
- * @since 2020-06-23
- */
-export function wait(timeout: number): Promise<void>
-export function wait<T>(timeout: number, resolveWith: T): Promise<T>
-export function wait<T>(timeout: number, resolveWith?: T): Promise<T | void> {
-    return new Promise(resolve => setTimeout(() => resolve(resolveWith), timeout))
-}
-
-/**
  * Escapes unsafe strings for use in HTML
  * 
  * ```js
@@ -107,6 +91,6 @@ export function wait<T>(timeout: number, resolveWith?: T): Promise<T | void> {
  * @author MindfulMinun
  * @since 2020-06-23
  */
-export function xss(unsafe: string): string {
+ export function xss(unsafe: string): string {
     return unsafe.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
 }

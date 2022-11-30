@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { templateNoop, HTML_ESCAPES, xss } from "./helpers.ts"
+import { templateNoop, HTML_ESCAPES, xss } from "./string.ts"
 
 export { HTML_ESCAPES }
 
