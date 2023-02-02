@@ -9,7 +9,7 @@
         - Fixed range not working with a reversed range
         - Deprecated choose and shuffle, use the methods on the Random class in rng.ts instead!
         - EventStream: Moved EventStream from iterable.ts to async.ts
-        - pinkyPromise: Moved pinkyPromise from iterable.ts to async.ts
+        - pinkyPromise: Moqved pinkyPromise from iterable.ts to async.ts
     - rng.ts
         - Added RNG.chooseWithWeights
     - string.ts

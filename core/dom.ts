@@ -75,6 +75,75 @@ export function textNode(templ: string | TemplateStringsArray, ...values: unknow
 }
 
 /**
+ * FLIP is a mnemonic device for effective JavaScript animations: First, Last, Invert, Play.
+ * This helper class makes it easy to perform FLIP animations.
+ *
+ * https://aerotwist.com/blog/flip-your-animations/
+ *
+ * @author MindfulMinun
+ * @since 2022-12-31
+ */
+class _FlipAnimator {
+    el: Element
+    #first: DOMRect | null = null
+
+    constructor(el: Element) {
+        this.el = el
+        this.#first = null
+    }
+    
+    /**
+     * This method immediately performs a FLIP animation.
+     * The caller must pass in a callback that describes the transition between the first and last states.
+     */
+    async flip(cb: (this: Element, el: Element, rect: DOMRect) => Promise<void> | void, options: KeyframeAnimationOptions = {}) {
+        // Get the current state of the element
+        this.recordFirstState()
+        
+        // Call the callback. The callback should change the element's DOMRect.
+        await cb.call(this.el, this.el, this.#first!)
+        
+        // Animate the element from the first state to the last state
+        return this.animateFromFirst(options)
+    }
+
+    /**
+     * Captures the initial DOMRect of the element.
+     * The caller may also pass in a DOMRect to use instead of querying the DOM.
+     */
+    recordFirstState(rect: DOMRect = this.el.getBoundingClientRect()) {
+        this.#first = rect
+        return this
+    }
+
+    /**
+     * Using the captured first state, this method will animate the element
+     * from the first state to the last state.
+     * Then this method will clear the DOMRects.
+     */
+    animateFromFirst(options: KeyframeAnimationOptions = {}) {
+        if (!this.#first) throw new Error('No first state recorded.')
+        const last = this.el.getBoundingClientRect()
+
+        const deltaX = this.#first.left   - last.left
+        const deltaY = this.#first.top    - last.top
+        const scaleX = this.#first.width  / last.width
+        const scaleY = this.#first.height / last.height
+
+        this.#first = null
+
+        return this.el.animate([
+            { transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})` },
+            { transform: 'none' }
+        ], {
+            duration: 300,
+            easing: 'ease-in-out',
+            ...options
+        })
+    }
+}
+
+/**
  * Walks the DOM recursively, calling the callback for each node.
  * @deprecated
  * @param root - The root of the DOM walk

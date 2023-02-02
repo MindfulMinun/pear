@@ -28,6 +28,7 @@ export class Stack<T> implements Iterable<T> {
         return el
     }
 
+    /** Preview the topmost element of the stack without removing it. */
     peek(): T | undefined {
         if (this.length === 0) return undefined
         return this.#elements[this.#head - 1]
@@ -73,6 +74,7 @@ export class Queue<T> implements Iterable<T> {
         return el
     }
 
+    /** Preview the next element in the queue without removing it. */
     peek(): T | undefined {
         if (this.length === 0) return undefined
         return this.#elements[this.#head]

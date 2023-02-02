@@ -1,7 +1,7 @@
 /**
  * HTML escape sequences for unsafe characters
  */
- export const HTML_ESCAPES = {
+export const HTML_ESCAPES = {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -91,6 +91,6 @@ export function templateNoop(
  * @author MindfulMinun
  * @since 2020-06-23
  */
- export function xss(unsafe: string): string {
+export function xss(unsafe: string): string {
     return unsafe.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
 }

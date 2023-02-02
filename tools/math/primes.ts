@@ -51,6 +51,7 @@ export function* primes(): Generator<number, never, undefined> {
 }
 
 function _isPrime(n: number) {
+    if (n % 1 !== 0) return false
     if (n < 2) return false
 
     if (Number.MAX_SAFE_INTEGER < n) throw Error("Number is too large to verify X(")
@@ -70,11 +71,13 @@ function _isPrime(n: number) {
  * @since 2022-10-13
  */
 export function isPrime(n: number): boolean {
+    if (n % 1 !== 0) return false
+    if (n < 2) return false
+
     // To verify if a number is prime, we only need to check if it is divisible by
     // any of the primes less than or equal to its square root.
 
     const sqrt = Math.ceil(Math.sqrt(n))
-
     for (const prime of primes()) {
         if (n % prime === 0) return false
         if (sqrt < prime) break

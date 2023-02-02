@@ -39,7 +39,7 @@ Deno.test('GraphSolver::DFS w/ g1', () => {
     )
 })
 
-Deno.test('GraphSolver::bidi', () => {
+Deno.test('GraphSolver::bidi Path', () => {
     const G = g3()
     const solver = new GraphSolver(G)
     const path = solver.bidi(G.vertices.get('A')!, G.vertices.get('E')!)
