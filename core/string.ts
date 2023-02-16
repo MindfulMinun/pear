@@ -7,8 +7,8 @@ export const HTML_ESCAPES = {
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#x27;",
-    "/": "&#x2F;"
-}
+    "/": "&#x2F;",
+} as const
 
 /**
  * Removes indentation from multiline strings.
@@ -75,24 +75,11 @@ export function templateNoop(
     templ: TemplateStringsArray | string,
     ...values: unknown[]
 ): string {
-    let strings = Array.from(typeof templ === 'string' ? [templ] : templ)
-    return strings.reduce((result, currentString, i) =>
-        result + currentString + (values[i] != null ? values[i] : ''),
+    if (typeof templ === 'string') return templ
+    return templ.reduce((result, currentString, i) =>
+        result + currentString + (typeof values[i] !== 'undefined' ? values[i] : ''),
         '' // Start with the empty string
     )
-}
-
-/**
- * Promise that resolves after timeout
- *
- * ```js
- * // Play hide and seek, count to 100 (seconds)
- * wait(100e3).then(() => "Ready or not, here I come!").then(seek)
- * ```
- * @since 2020-06-23
- */
-export function wait(timeout: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, timeout))
 }
 
 /**
@@ -105,5 +92,5 @@ export function wait(timeout: number): Promise<void> {
  * @since 2020-06-23
  */
 export function xss(unsafe: string): string {
-    return unsafe.replace(/[&<>"'\/]/g, (key) => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
+    return unsafe.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
 }

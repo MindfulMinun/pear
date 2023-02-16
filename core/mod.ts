@@ -4,7 +4,7 @@
  * @license MIT
  */
 
-console.error("Hey there, past me! Please don't import <https://mirai.benjic.xyz/lib/mod.ts>, instead import specific files please!")
+console.error("Hey there, past me! Please don't import `mod.ts`, instead import specific files!")
 
 // export * from "./array.ts"
 // export * from "./helpers.ts"
