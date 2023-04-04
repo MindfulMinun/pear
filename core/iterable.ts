@@ -7,7 +7,13 @@ export type Repeated<
     T,
     N extends number,
     R extends readonly T[] = [],
-> = R['length'] extends N ? R : Repeated<T, N, readonly [T, ...R]>;
+> = R['length'] extends N ? R : Repeated<T, N, readonly [T, ...R]>
+
+/**
+ * 
+ */
+// deno-lint-ignore ban-types
+export type Prettify<T> = { [K in keyof T]: T[K] } & {}
 
 /**
  * Creates an iterable that always yields the given value.
