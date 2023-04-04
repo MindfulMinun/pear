@@ -1,4 +1,4 @@
-import { Graph, Vertex, VertexType, EdgeType, Path, PathType } from "./graph.ts"
+import { Graph, Vertex, VertexType, Edge, EdgeType, Path, PathType } from "./graph.ts"
 import { Queue, Stack } from "../structures.ts"
 
 /**
@@ -43,7 +43,7 @@ export class GraphSolver<vData, eData> {
                     const path = backPaths.get(v)!.copy()
                     path.addEdge(E)
                     backPaths.set(w, path)
-                    queue.enqueue(w)
+                    queue.push(w)
                 }
             }
         }
@@ -102,8 +102,8 @@ export class GraphSolver<vData, eData> {
         const seenR = new Set<Vertex<vData, eData>>([right])
 
         while (qL.length && qR.length) {
-            const l = qL.dequeue()!
-            const r = qR.dequeue()!
+            const l = qL.pop()!
+            const r = qR.pop()!
 
             // The left side will traverse the graph normally,
             // following the direction of the arrows in the edges
@@ -115,7 +115,7 @@ export class GraphSolver<vData, eData> {
                     const path = backL.get(l)!.copy()
                     path.addEdge(E)
                     backL.set(w, path)
-                    qL.enqueue(w)
+                    qL.push(w)
                 }
             }
 
@@ -131,7 +131,7 @@ export class GraphSolver<vData, eData> {
                     const path = backR.get(r)!.copy()
                     path.addEdge(E)
                     backR.set(w, path)
-                    qR.enqueue(w)
+                    qR.push(w)
                 }
             }
 
@@ -147,5 +147,60 @@ export class GraphSolver<vData, eData> {
             return path
         }
         return null
+    }
+
+    /**
+     * Sorts the edges by their weight ascending, then performs {@link kruskalPresorted | Kruskal's algorithm},
+     * an algorithm for determining a minimum-spanning forest of a graph.
+     *
+     * Kruskal's greedy algorithm determines a minimum-spanning forest of a weighted, *undirected* graph.
+     * 
+     * If you only wish to sort the edges, use {@link sortEdgesByWeight} instead.
+     * @author MindfulMinun
+     * @since 2023-03-30
+     */
+    kruskalWithSort() {
+        this.sortEdgesByWeight()
+        return this.kruskalPresorted()
+    }
+
+    /**
+     * Performs Kruskal's algorithm, assuming that the edges have been presorted.
+     * This algorithm returns a set of the edges that span the graph.
+     *
+     * Kruskal's greedy algorithm determines a minimum-spanning forest of a weighted, *undirected* graph.
+     *
+     * This method assumes that the edges have been sorted by their weight ascending, allowing it to run in `O(m)` time.
+     * If the edges have not been sorted, use {@link kruskalWithSort} instead.
+     * @author MindfulMinun
+     * @since 2023-03-30
+     */
+    kruskalPresorted(edges?: Edge<vData, eData>[]) {
+        const forest = new Set<Edge<vData, eData>>()
+        /** Keeps track of the reachable vertices. Used to ensure that newly added edges do not create a cycle. */
+        const reach = new WeakSet<Vertex<vData, eData>>()
+        const ordered: Iterable<Edge<vData, eData>> = edges ?? this.G.edges.values()
+
+        for (const E of ordered) {
+            if (forest.has(E)) continue
+            if (reach.has(E.u) && reach.has(E.v)) continue
+            forest.add(E)
+            reach.add(E.u).add(E.v)
+        }
+
+        return forest
+    }
+
+    /**
+     * Sorts edges by their weight ascending. Useful for speeding up algorithms such as Kruskal's.
+     * This algorithm runs in `O(n log n)` time
+     * @author MindfulMinun
+     * @since 2023-03-30
+     */
+    sortEdgesByWeight() {
+        const edges = Array.from(this.G.edges.values())
+            .sort((a, b) => this.G.weights(a) - this.G.weights(b))
+            .map(e => [e.id, e] as const)
+        this.G.edges = new Map(edges)
     }
 }

@@ -25,9 +25,9 @@ interface EdgeOpts {
  */
 export class Graph<vData, eData> {
     /** A map of the vertices in the graph. To add a new vertex, please use the {@link Graph.createVertex} method instead. */
-    readonly vertices: Map<UUID, Vertex<vData, eData>>
+    vertices: Map<UUID, Vertex<vData, eData>>
     /** A map of the edges in the graph. To add a new edge, please use the {@link Graph.createEdge} method instead. */
-    readonly edges: Map<UUID, Edge<vData, eData>>
+    edges: Map<UUID, Edge<vData, eData>>
     /**
      * Whether or not edges created in the graph are directed when the value is omitted.
      * Note that edges created with the `directed` option will use that value instead.
@@ -149,17 +149,17 @@ export class Graph<vData, eData> {
  * @since 2022-07-26
  */
 
-export class Vertex<VertexData, EdgeData> {
+export class Vertex<vData, eData> {
     /* The graph this vertex belongs to */
-    graph: Graph<VertexData, EdgeData>
+    graph: Graph<vData, eData>
     /* The value stored in this vertex, up to you! */
-    data: VertexData
+    data: vData
     /* The unique identifier of this vertex */
     id: UUID
     /* The edges connected to this vertex */
-    adjacentEdges: Set<Edge<VertexData, EdgeData>>
+    adjacentEdges: Set<Edge<vData, eData>>
 
-    constructor(parentGraph: Graph<VertexData, EdgeData>, id: UUID, data: VertexData) {
+    constructor(parentGraph: Graph<vData, eData>, id: UUID, data: vData) {
         this.graph = parentGraph
         this.data = data
         this.id = id
@@ -168,7 +168,7 @@ export class Vertex<VertexData, EdgeData> {
 
     delete() { this.graph.deleteVertex(this) }
 
-    toJSON(replacer: (this: Graph<VertexData, EdgeData>, data: VertexData) => unknown = data => data) {
+    toJSON(replacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data) {
         return [this.id, replacer.call(this.graph, this.data)]
     }
 
