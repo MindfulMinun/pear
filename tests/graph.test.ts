@@ -2,6 +2,7 @@ import { g1, g2, g3 } from '../tools/graph/_graph-samples.ts'
 import { GraphSolver } from '../tools/graph/graph-solver.ts'
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts"
 import { Path } from "../tools/graph/graph.ts"
+import { dedent } from "../core/string.ts"
 
 // TODO: Add more tests!
 
@@ -64,7 +65,11 @@ function assertPathsEqual<vData, eData>(
         
         expectedV.forEach((v, i) => assertEquals(path?.vertices[i].id, v))
         expectedE.forEach((e, i) => assertEquals(path?.edges[i].id, e))
-    } catch (e) {
-        throw Error(`Paths are different! Expected: [${expectedV.join(' -> ')}]; Actual: [${path.vertices.map(v => v.id).join(' -> ')}]`)
+    } catch (_e) {
+        throw Error(dedent`
+            Paths are different!
+                Expected: [${expectedV.join(' -> ')}]
+                Actual:   [${path.vertices.map(v => v.id).join(' -> ')}]
+        `)
     }
 }
