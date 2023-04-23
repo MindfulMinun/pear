@@ -95,7 +95,7 @@ export class Queue<T> implements Iterable<T> {
  * 
  * A binary heap always satisfies the following properties:
  * - The root node is the minimum element in the heap.
- * - The children of a node are always greater than or equal to the node.
+ * - The children of a node are always greater than or equal to that node.
  * 
  * @author MindfulMinun
  * @since 2023-03-10
