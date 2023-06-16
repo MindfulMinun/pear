@@ -9,10 +9,6 @@ export type Repeated<
     R extends readonly T[] = [],
 > = R['length'] extends N ? R : Repeated<T, N, readonly [T, ...R]>
 
-/**
- * 
- */
-// deno-lint-ignore ban-types
 export type Prettify<T> = { [K in keyof T]: T[K] } & {}
 
 /**
