@@ -63,7 +63,10 @@ export function html(strings: TemplateStringsArray | string, ...exprs: unknown[]
 }
 
 /**
- * Creates a text node for use in the DOM. The text content is NOT escaped.
+ * Creates a text node for use in the DOM.
+ * @remarks
+ * The text content is escaped using
+ * the browser's built-in HTML escaping via `document.createTextNode`.
  * @author MindfulMinun
  * @since 2022-06-04
  */
