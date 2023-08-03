@@ -1,3 +1,14 @@
+# 1.3.0
+- iterable
+    - Add Prettify helper type
+- structures
+    - Add BinaryHeap, Memo, and StateMachine
+    - Split into multiple files
+- graph
+    - graph-solver
+         - Add Kruskal's algorithm for finding a minimum spanning tree.
+
+
 # 1.2.0
 
 - core

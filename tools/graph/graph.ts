@@ -1,6 +1,6 @@
 import * as Colors from "https://deno.land/std@0.157.0/fmt/colors.ts"
 
-type UUID = ReturnType<typeof crypto.randomUUID>
+type UUID = string
 
 export type VertexType<G> = G extends Graph<infer T, infer V> ? Vertex<T, V> : never
 export type EdgeType<G> = G extends Graph<infer T, infer V> ? Edge<T, V> : never
@@ -166,6 +166,10 @@ export class Vertex<vData, eData> {
         this.adjacentEdges = new Set()
     }
 
+    /**
+     * Remove this vertex from the graph. Edges connected to this vertex will also be removed.
+     * Callers should discard this vertex after calling this method.
+     */
     delete() { this.graph.deleteVertex(this) }
 
     toJSON(replacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data) {

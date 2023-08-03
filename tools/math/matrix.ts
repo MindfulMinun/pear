@@ -8,8 +8,6 @@ const memodDeterminant = new Memo({
     hash: M => M.toString()
 }).fn
 
-// const memodDeterminant = (M: Matrix) => M.calculateDeterminant()
-
 export class Matrix<M extends number = number, N extends number = number> {
     /** The number of rows in this matrix. */
     m: M
@@ -247,4 +245,14 @@ export class Matrix<M extends number = number, N extends number = number> {
         }
         return S
     }
+}
+
+
+
+if (import.meta.main) {
+    const A = Matrix.strang(15)
+    
+    console.time('calculateDeterminant')
+    console.log(A.calculateDeterminant())
+    console.timeEnd('calculateDeterminant')
 }
