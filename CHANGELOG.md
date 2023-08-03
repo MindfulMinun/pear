@@ -4,6 +4,8 @@
 - structures
     - Add BinaryHeap, Memo, and StateMachine
     - Split into multiple files
+- Matrix
+    - Matrix type now tracks its dimensions
 - graph
     - graph-solver
          - Add Kruskal's algorithm for finding a minimum spanning tree.
