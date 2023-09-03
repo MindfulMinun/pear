@@ -1,10 +1,10 @@
-type Transition<State extends string | number | symbol, InputAlphabet, Context> = (
+export type Transition<State extends string | number | symbol, InputAlphabet, Context> = (
     this: StateMachine<State, InputAlphabet, Context>,
     input: InputAlphabet,
     machine: StateMachine<State, InputAlphabet, Context>
 ) => void
 
-class StateMachine<State extends string | number | symbol = 0, InputAlphabet = string, Context = null> {
+export class StateMachine<State extends string | number | symbol = 0, InputAlphabet = string, Context = null> {
     #initialState: State
     #transitionTable: Partial<Record<State, Transition<State, InputAlphabet, Context>>>
     #acceptStates: Set<State>
