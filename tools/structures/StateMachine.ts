@@ -1,10 +1,10 @@
-type Transition<State extends string | number | symbol, InputAlphabet, Context> = (
+export type Transition<State extends string | number | symbol, InputAlphabet, Context> = (
     this: StateMachine<State, InputAlphabet, Context>,
     input: InputAlphabet,
     machine: StateMachine<State, InputAlphabet, Context>
 ) => void
 
-class StateMachine<State extends string | number | symbol = 0, InputAlphabet = string, Context = null> {
+export class StateMachine<State extends string | number | symbol = 0, InputAlphabet = null, Context = null> {
     #initialState: State
     #transitionTable: Partial<Record<State, Transition<State, InputAlphabet, Context>>>
     #acceptStates: Set<State>
@@ -61,37 +61,62 @@ if (import.meta.main) {
     //      0 -> S1
     //      1 -> S2
 
-    const enum MyState {
-        P = 'P',
-        R = 'R',
-        N = 'N',
-        D = 'D',
-        L = 'L'
+    const enum MarioState {
+        Mario,
+        SuperMario,
+        FireMario,
+        CapeMario,
+        DeadMario
     }
 
-    const enum Direction {
-        UP = 'UP',
-        DOWN = 'DOWN',
+    const enum MarioStateTransition {
+        Mushroom,
+        FireFlower,
+        Feather,
+        Damage
     }
 
-    const M = new StateMachine<MyState, Direction>(MyState.P, {
-        [MyState.P]: (input, m) => input === Direction.UP ? m.goto(MyState.P) : m.goto(MyState.R),
-        [MyState.R]: (input, m) => input === Direction.UP ? m.goto(MyState.P) : m.goto(MyState.N),
-        [MyState.N]: (input, m) => input === Direction.UP ? m.goto(MyState.R) : m.goto(MyState.D),
-        [MyState.D]: (input, m) => input === Direction.UP ? m.goto(MyState.N) : m.goto(MyState.L),
-        [MyState.L]: (input, m) => input === Direction.UP ? m.goto(MyState.D) : m.goto(MyState.L),
-    }, [MyState.P])
-    // const M = new StateMachine<MyState, '1' | '0'>(MyState.even, {
-    //     [MyState.even]: (input, m) => input === '1' ? m.goto(MyState.even) : m.goto(MyState.odd),
-    //     [MyState.odd ]: (input, m) => input === '0' ? m.goto(MyState.even) : m.goto(MyState.odd),
-    // }, [MyState.even])
+    // const M = new StateMachine<MarioState, MarioStateTransition>(
+    //     MarioState.Mario,
+    //     {
+    //         [MarioState.Mario]: (input, m) => {
+    //             switch (input) {
+    //                 case MarioStateTransition.FireFlower: m.goto(MarioState.FireMario); break
+    //                 case MarioStateTransition.Feather: m.goto(MarioState.CapeMario); break
+    //                 case MarioStateTransition.Damage: m.goto(MarioState.Mario); break
+    //             }
+    //         },
+    //         [MarioState.SuperMario]: (input, m) => {
+    //             switch (input) {
+    //                 case MarioStateTransition.FireFlower: m.goto(MarioState.FireMario); break
+    //                 case MarioStateTransition.Feather: m.goto(MarioState.CapeMario); break
+    //                 case MarioStateTransition.Damage: m.goto(MarioState.Mario); break
+    //             }
+    //         },
+    //         [MarioState.FireMario]: (input, m) => {
+    //             switch (input) {
+    //                 case MarioStateTransition.FireFlower: m.goto(MarioState.FireMario); break
+    //                 case MarioStateTransition.Feather: m.goto(MarioState.CapeMario); break
+    //                 case MarioStateTransition.Damage: m.goto(MarioState.Mario); break
+    //             }
+    //         },
+    //         [MarioState.CapeMario]: (input, m) => {
+    //             switch (input) {
+    //                 case MarioStateTransition.FireFlower: m.goto(MarioState.FireMario); break
+    //                 case MarioStateTransition.Feather: m.goto(MarioState.CapeMario); break
+    //                 case MarioStateTransition.Damage: m.goto(MarioState.Mario); break
+    //             }
+    //         },
+    //         [MarioState.DeadMario]: () => { }
+    //     },
+    //     [MarioState.Mario, MarioState.SuperMario, MarioState.FireMario, MarioState.CapeMario]
+    // )
 
-    M.runWithInput([
-        Direction.DOWN,
-        Direction.DOWN,
-        Direction.DOWN,
-    ])
-    
-    console.log(M)
-    console.log(M.accepts())
+
+    const M = new StateMachine<MarioState, MarioStateTransition>(
+        MarioState.Mario,
+        {},
+        [MarioState.Mario, MarioState.SuperMario, MarioState.FireMario, MarioState.CapeMario]
+    )
+
 }

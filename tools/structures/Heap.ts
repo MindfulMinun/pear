@@ -28,17 +28,13 @@ export class BinaryHeap<T> implements Iterable<T> {
         while (this.length !== 0) yield this.pop()!
     }
 
-    /**
-     * Insert an element into the heap.
-     */
+    /** Insert an element into the heap. */
     push(element: T): void {
         this.#elements.push(element)
         this.#bubbleUp(this.length - 1)
     }
 
-    /**
-     * Remove the minimum element from the heap and return it.
-     */
+    /** Remove the minimum element from the heap and return it. */
     pop(): T | undefined {
         if (this.length === 0) return undefined
 

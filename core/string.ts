@@ -21,7 +21,7 @@ export function dedent(
     let strings = Array.from(typeof templ === 'string' ? [templ] : templ)
 
     // 1. Remove trailing whitespace.
-    strings[strings.length - 1] = strings[strings.length - 1].trimRight()
+    strings[strings.length - 1] = strings[strings.length - 1].trimEnd()
 
     // 2. Find all line breaks to determine the highest common indentation level.
     const indentLengths = strings.reduce((arr, str) => {
@@ -83,14 +83,47 @@ export function templateNoop(
 }
 
 /**
+ * Escapes HTML on the server-side.
+ * 
+ * @remarks Avoid calling this method twice on the same string.
+ * 
+ * @author MindfulMinun
+ * @since 2022-05-20
+ */
+export function html(
+    templ: TemplateStringsArray | string,
+    ...values: unknown[]
+): string {
+    if (typeof templ === 'string') return xss(templ)
+    return templ.reduce((result, currentString, i) =>
+        result + currentString + (typeof values[i] !== 'undefined' ? xss('' + values[i]) : ''),
+        '' // Start with the empty string
+    )
+}
+
+/**
  * Escapes unsafe strings for use in HTML
  * 
- * ```js
- * xss(`<img src="/bogus/path" onerror="alert('xss')">`)
- * ```
+ * @remarks Avoid calling this method twice on the same string.
+ * 
+ * @example
+ * xss(`<img src=":(" onerror="alert('xss')">`)
+ * // -> `&lt;img src=":(" onerror="alert('xss')"&gt;`
+ * 
+ * const unsafe = `Bobby Tables <img src=":(" onerror="alert('xss')">`
+ * xss`<p>My name is <strong>${unsafe}</strong></p>`
+ * // -> `<p>My name is <strong>Bobby Tables &lt;img src=":(" onerror="alert('xss')"&gt;</strong></p>`
  * @author MindfulMinun
  * @since 2020-06-23
  */
-export function xss(unsafe: string): string {
-    return unsafe.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
+export function xss(unsafe: string): string
+export function xss(templ: TemplateStringsArray, ...values: unknown[]): string
+export function xss(templ: string | TemplateStringsArray, ...values: unknown[]): string {
+    if (typeof templ === 'string') {
+        return templ.replace(/[&<>"'\/]/g, key => HTML_ESCAPES[key as keyof typeof HTML_ESCAPES])
+    }
+    return templ.reduce((result, currentString, i) =>
+        result + currentString + (typeof values[i] !== 'undefined' ? xss('' + values[i]) : ''),
+        '' // Start with the empty string
+    )
 }

@@ -52,6 +52,16 @@ Deno.test('GraphSolver::bidi Path', () => {
     )
 })
 
+Deno.test('GraphSolver::kruskalPresorted', () => {
+    const G = g3()
+    const solver = new GraphSolver(G)
+    const set = solver.kruskalPresorted()
+    // const expected = new Set<string>(['GH', 'FG', 'CI', 'AB', 'CF', 'GI', 'CD', 'AH'])
+    // ;[...set].map(e => e.id).forEach(e => expected.delete(e))
+    // if (expected.size > 0) throw Error(`Missing edges: ${[...expected].join(', ')}`)H
+    throw Error(set.size + '')
+})
+
 function assertPathsEqual<vData, eData>(
     path: Path<vData, eData> | null | undefined,
     expectedV: string[],

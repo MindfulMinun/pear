@@ -1,12 +1,8 @@
 import {
-    choose, fill, range, limit
+    fill, range, limit
 } from "../core/iterable.ts"
 
-import { assertThrows, assertEquals, assert } from "https://deno.land/std@0.140.0/testing/asserts.ts"
-
-Deno.test("choose: throw on empty array", () => {
-    assertThrows(() => choose([]))
-})
+import { assertEquals, assert } from "https://deno.land/std@0.140.0/testing/asserts.ts"
 
 Deno.test("fill, yield the same value every time", () => {
     const count = 50_000

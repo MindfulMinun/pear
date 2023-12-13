@@ -1,5 +1,8 @@
 import { Graph, Vertex, VertexType, Edge, EdgeType, Path, PathType } from "./graph.ts"
-import { Queue, Stack } from "../structures.ts"
+import { Queue } from "../structures/Queue.ts"
+import { Stack } from "../structures/Stack.ts"
+import { BinaryHeap } from "../structures/Heap.ts"
+import { DisjointSet } from "../structures/DisjointSet.ts"
 
 /**
  * Describes a search function for DFS and BFS.
@@ -149,6 +152,10 @@ export class GraphSolver<vData, eData> {
         return null
     }
 
+    dijkstra() {
+        // TODO: Implement Dijkstra's algorithm
+    }
+
     /**
      * Sorts the edges by their weight ascending, then performs {@link kruskalPresorted | Kruskal's algorithm},
      * an algorithm for determining a minimum-spanning forest of a graph.
@@ -165,31 +172,49 @@ export class GraphSolver<vData, eData> {
     }
 
     /**
-     * Performs Kruskal's algorithm, assuming that the edges have been presorted.
+     * Performs Kruskal's algorithm, ~~assuming that the edges have been presorted.~~
      * This algorithm returns a set of the edges that span the graph.
      *
      * Kruskal's greedy algorithm determines a minimum-spanning forest of a weighted, *undirected* graph.
      *
-     * This method assumes that the edges have been sorted by their weight ascending, allowing it to run in `O(m)` time.
-     * If the edges have not been sorted, use {@link kruskalWithSort} instead.
+     * ~~This method assumes that the edges have been sorted by their weight ascending, allowing it to run in `O(m)` time.
+     * If the edges have not been sorted, use {@link kruskalWithSort} instead.~~
      * @author MindfulMinun
      * @since 2023-03-30
      */
-    kruskalPresorted(edges?: Edge<vData, eData>[]) {
+    kruskalPresorted(edges?: Edge<vData, eData>[]): Set<Edge<vData, eData>>
+    kruskalPresorted(edges?: Iterable<Edge<vData, eData>>): Set<Edge<vData, eData>> {
         const forest = new Set<Edge<vData, eData>>()
-        /** Keeps track of the reachable vertices. Used to ensure that newly added edges do not create a cycle. */
-        const reach = new WeakSet<Vertex<vData, eData>>()
-        const ordered: Iterable<Edge<vData, eData>> = edges ?? this.G.edges.values()
+        const djs = new DisjointSet<string>()
 
-        for (const E of ordered) {
-            if (forest.has(E)) continue
-            if (reach.has(E.u) && reach.has(E.v)) continue
-            forest.add(E)
-            reach.add(E.u).add(E.v)
+        for (const V of this.G.vertices.values()) djs.makeSet(V.id)
+
+        const sortedEdges = edges ?? new BinaryHeap((a, b) => this.G.weights(a) - this.G.weights(b))
+        console.log("a")
+
+        for (const E of sortedEdges) {
+            if (djs.find(E.u.id) !== djs.find(E.v.id)) {
+                forest.add(E)
+                djs.union(E.u.id, E.v.id)
+            }
         }
 
         return forest
     }
+        // const forest = new Set<Edge<vData, eData>>()
+        // /** Keeps track of the reachable vertices. Used to ensure that newly added edges do not create a cycle. */
+        // const reach = new WeakSet<Vertex<vData, eData>>()
+        // const ordered: Iterable<Edge<vData, eData>> = edges ?? this.G.edges.values()
+
+        // for (const E of ordered) {
+        //     if (forest.has(E)) continue
+        //     if (reach.has(E.u) && reach.has(E.v)) continue
+        //     forest.add(E)
+        //     reach.add(E.u).add(E.v)
+        // }
+
+        // return forest
+    // }
 
     /**
      * Sorts edges by their weight ascending. Useful for speeding up algorithms such as Kruskal's.
