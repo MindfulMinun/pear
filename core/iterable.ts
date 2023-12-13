@@ -9,6 +9,7 @@ export type Repeated<
     R extends readonly T[] = [],
 > = R['length'] extends N ? R : Repeated<T, N, readonly [T, ...R]>
 
+// deno-lint-ignore ban-types
 export type Prettify<T> = { [K in keyof T]: T[K] } & {}
 
 /**
@@ -22,7 +23,8 @@ export function* fill<T>(value = 0 as unknown as T, length = Infinity): Generato
 }
 
 /**
- * A ganerator that yields numbers between a range, akin to Python's {@link https://docs.python.org/3.11/library/stdtypes.html#ranges range}.
+ * A ganerator that yields numbers between a range, akin to Python's
+ * {@link https://docs.python.org/3.11/library/stdtypes.html#ranges range}.
  * If `start` is greater than `end`, the range will decrement accordingly
  * 
  * @example
@@ -43,7 +45,8 @@ export function range(start: number, end: number, step: number): Generator<numbe
 export function* range(a: number, b?: number, c?: number) {
     const [start, end, step] = (
         typeof b === "undefined" ? [0, a, 1] :
-        typeof c === "undefined" ? [a, b, 1] : [a, b, Math.abs(c)]
+        typeof c === "undefined" ? [a, b, 1]
+                                 : [a, b, Math.abs(c)]
     )
 
     const positive = start < end
@@ -106,12 +109,16 @@ export function removeFromArraybyIndexes<T>(
 }
 
 /**
- * Divides an array into two by a given predicate function. Those that pass are put into the first, the rest are put in the second.
- * 
+ * Divides an array into two by a given predicate function.
+ * Those that pass are put into the first, the rest are put in the second.
+ *
  * @author MindfulMinun
  * @since 2022-06-28
  */
-export function divide<T>(list: T[], predicate: (this: typeof list, value: T, index: number, array: typeof list) => boolean): [T[], T[]] {
+export function divide<T>(
+    list: T[],
+    predicate: (this: typeof list, value: T, index: number, array: typeof list) => boolean
+): [T[], T[]] {
     const pass: T[] = []
     const fail: T[] = []
 

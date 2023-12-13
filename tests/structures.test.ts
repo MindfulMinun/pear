@@ -1,5 +1,7 @@
 import { range } from "../core/iterable.ts";
-import { BinaryHeap, Queue, Stack } from "../tools/structures.ts"
+import { Queue } from "../tools/structures/Queue.ts"
+import { Stack } from "../tools/structures/Stack.ts"
+import { BinaryHeap } from "../tools/structures/Heap.ts"
 
 import { assertEquals } from "https://deno.land/std@0.140.0/testing/asserts.ts"
 
