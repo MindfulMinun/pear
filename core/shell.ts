@@ -15,7 +15,7 @@ export interface ShellSpawnerOpts extends Omit<Deno.CommandOptions, 'args'> {
  */
 export type ShellSpawner<R = Deno.Command> = (a: string | TemplateStringsArray, ...values: unknown[]) => R
 
-class Troopa implements PromiseLike<Deno.CommandOutput> {
+export class Troopa implements PromiseLike<Deno.CommandOutput> {
     [Symbol.toStringTag] = 'Promise'
 
     cmd: Deno.Command
