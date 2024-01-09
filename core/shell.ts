@@ -51,23 +51,32 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
     get stdout() { return this.process.stdout }
     get stderr() { return this.process.stderr }
 
-    pipe(into: Troopa): Troopa
-    pipe(into: WritableStream): null
-    pipe(into: Troopa | WritableStream<Uint8Array>): Troopa | null {
+    response(src: 'stdout' | 'stderr' = 'stdout') {
+        const source = this.process[src]
+        return new Response(source)
+    }
+
+    async code() {
+        return (await this).code
+    }
+
+    pipe(into: Troopa): typeof into
+    pipe(into: WritableStream): typeof this
+    pipe(into: Troopa | WritableStream<Uint8Array>): Troopa {
         if (into instanceof Troopa) {
             this.process.stdout.pipeTo(into.process.stdin)
             return into
         }
 
         this.process.stdout.pipeTo(into)
-        return null
+        return this
     }
 
-    then<Resolved = Deno.CommandOutput, Rejected = never>(
-        onfulfilled?: ((a: Deno.CommandOutput) => Resolved | PromiseLike<Resolved>),
+    then<Resolved = Deno.CommandStatus, Rejected = never>(
+        onfulfilled?: ((a: Deno.CommandStatus) => Resolved | PromiseLike<Resolved>),
         onrejected?: ((a: unknown) => Rejected | PromiseLike<Rejected>)
     ): PromiseLike<Resolved | Rejected> {
-        return this.process.output().then(onfulfilled, onrejected)
+        return this.process.status.then(onfulfilled, onrejected)
     }
 }
 
@@ -111,6 +120,9 @@ if (import.meta.main) {
     const $ = koopa({
         prefix: 'set -euox pipefail',
     })
-    $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
-        .pipe(Deno.stdout.writable)
+    const stdout = Deno.stdout.writable
+    const x = await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
+        .pipe(stdout)
+    
+    console.log(`Exit Status: ${x.code}`)
 }
