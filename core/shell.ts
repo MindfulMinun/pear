@@ -121,7 +121,7 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
  */
 export default function koopa(opts: Partial<ShellSpawnerOpts> = {}) {
     const actualOpts: ShellSpawnerOpts = {
-        shell: 'sh',
+        shell: 'bash',
         shellArgs: cmd => ['-c', `${opts.prefix || 'set -euo pipefail'}; ${cmd}`],
         autospawn: true,
         ...opts
