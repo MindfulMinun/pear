@@ -16,10 +16,9 @@ export interface ShellSpawnerOpts extends Omit<Deno.CommandOptions, 'args'> {
 export type ShellSpawner<R = Deno.Command> = (a: string | TemplateStringsArray, ...values: unknown[]) => R
 
 export class Troopa implements PromiseLike<Deno.CommandOutput> {
-    [Symbol.toStringTag] = 'Promise'
-
     cmd: Deno.Command
     #process?: Deno.ChildProcess
+    #writer?: WritableStreamDefaultWriter
 
     constructor(
         public cmdStr: string,
@@ -60,6 +59,41 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
         return (await this).code
     }
 
+    private get writer() {
+        if (!this.#writer) {
+            this.#writer = this.stdin.getWriter()
+        }
+        return this.#writer
+    }
+
+    write(input: string): Promise<this>
+    write(input: Uint8Array): Promise<this>
+    write(input: Blob): Promise<this>
+    async write(input: string | Uint8Array | Blob) {
+        let encoded: Uint8Array
+
+        switch (true) {
+            case input instanceof Uint8Array:
+                encoded = input
+                break
+            case input instanceof Blob:
+                encoded = new Uint8Array(await input.arrayBuffer())
+                break
+            default:
+                encoded = new TextEncoder().encode(input)
+        }
+        
+        await this.writer.write(encoded)
+        return this
+    }
+
+    async close() {
+        await this.writer.close()
+        return this
+    }
+
+    // --
+
     pipe(into: Troopa): typeof into
     pipe(into: WritableStream): typeof this
     pipe(into: Troopa | WritableStream<Uint8Array>): Troopa {
@@ -97,7 +131,7 @@ export default function koopa(opts: Partial<ShellSpawnerOpts> = {}) {
         templ: TemplateStringsArray | string,
         ...values: unknown[]
     ) {
-        // TODO: Implement actual escaping
+        // FIXME: Implement actual escaping
         const escape = (a: string) => a
         let execStr = ''
         if (typeof templ === 'string') {
