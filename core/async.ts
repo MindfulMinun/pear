@@ -87,6 +87,15 @@ export class EventStream<T> implements AsyncIterable<T> {
         this.#done = true
         this.#resolve()
     }
+
+    /**
+     * Iterate over the event stream, calling a callback for each event.
+     * @author MindfulMinun
+     * @since 2024-06-02
+     */
+    each(callback: (value: T) => void) {
+        return each(this, callback)
+    }
 }
 
 /**
@@ -104,6 +113,17 @@ export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) =>
     }
 }
 
+/**
+ * Iterate over an async iterable, calling a callback for each value.
+ * 
+ * @author MindfulMinun
+ * @since 2024-06-02
+ */
+export async function each<T>(source: AsyncIterable<T>, callback: (value: T) => void) {
+    for await (const value of source) {
+        callback(value)
+    }
+}
 
 
 /**
@@ -143,4 +163,3 @@ export function pinkyPromise<T>(): [
     // the assignment to `p`
     return [p, resolve!, reject!]
 }
-
