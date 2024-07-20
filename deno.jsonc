@@ -1,0 +1,24 @@
+{
+  "name": "@mindfulminun/pear",
+  "version": "1.5.0",
+  "compilerOptions": {
+    "lib": ["dom.iterable", "esnext", "dom", "deno.ns"]
+  },
+  "exports": {
+    "./core": "./core/mod.ts",
+    "./core/async": "./core/async.ts",
+    // "./core/dom": "./core/dom.ts",
+    "./core/iterable": "./core/iterable.ts",
+    "./core/rng": "./core/rng.ts",
+    "./core/shell": "./core/shell.ts",
+    "./core/string": "./core/string.ts",
+
+    // "./tools": "./tools/",
+    "./tools/graph": "./tools/graph/mod.ts",
+    "./tools/graph-solver": "./tools/graph/graph-solver.ts",
+    "./tools/matrix": "./tools/math/matrix.ts",
+    "./tools/primes": "./tools/math/primes.ts",
+    "./tools/structures": "./tools/structures/mod.ts"
+  },
+  "imports": { "@std/fmt": "jsr:@std/fmt@^0.225.6" }
+}

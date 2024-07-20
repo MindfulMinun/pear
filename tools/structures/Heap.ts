@@ -24,7 +24,7 @@ export class BinaryHeap<T> implements Iterable<T> {
         for (const el of initials) this.push(el)
     }
 
-    *[Symbol.iterator]() {
+    *[Symbol.iterator](): Generator<NonNullable<T>, void, unknown> {
         while (this.length !== 0) yield this.pop()!
     }
 
@@ -112,5 +112,5 @@ export class BinaryHeap<T> implements Iterable<T> {
     }
 
     /** The number of elements in the heap */
-    get length() { return this.#elements.length }
+    get length(): number { return this.#elements.length }
 }

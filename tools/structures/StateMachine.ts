@@ -25,26 +25,28 @@ export class StateMachine<State extends string | number | symbol = 0, InputAlpha
         this.reset()
     }
 
-    runWithInput(elements: Iterable<InputAlphabet>) {
+    runWithInput(elements: Iterable<InputAlphabet>): this {
         for (const element of elements) {
             this.transitionWith(element)
         }
         return this
     }
 
-    transitionWith(input: InputAlphabet) {
+    transitionWith(input: InputAlphabet): this {
         const fn = this.#transitionTable[this.currentState]
         if (!fn) throw new Error(`No transition function for state ${String(this.currentState)}`)
         fn.call(this, input, this)
         return this
     }
 
-    goto(state: State) {
+    goto(state: State): this {
         this.currentState = state
         return this
     }
 
-    accepts(state = this.currentState) { return this.#acceptStates.has(state) }
+    accepts(state = this.currentState): boolean {
+        return this.#acceptStates.has(state)
+    }
 
     reset() {
         this.currentState = this.#initialState

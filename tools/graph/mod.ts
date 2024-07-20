@@ -1,4 +1,4 @@
-import * as Colors from "https://deno.land/std@0.157.0/fmt/colors.ts"
+import * as Colors from "@std/fmt/colors"
 
 type UUID = string
 
@@ -60,7 +60,7 @@ export class Graph<vData, eData> {
         this.vertices.delete(V.id)
     }
 
-    createEdge(u: Vertex<vData, eData>, v: Vertex<vData, eData>, data: eData, opts: Partial<EdgeOpts> = {}) {
+    createEdge(u: Vertex<vData, eData>, v: Vertex<vData, eData>, data: eData, opts: Partial<EdgeOpts> = {}): Edge<vData, eData> {
         const options: EdgeOpts = {
             directed: this.directed,
             id: crypto.randomUUID(),
@@ -81,14 +81,15 @@ export class Graph<vData, eData> {
     }
 
 
-    createPath(start: Vertex<vData, eData>) {
+    createPath(start: Vertex<vData, eData>): Path<vData, eData> {
         return new Path<vData, eData>(this, start)
     }
 
+    // FIXME: return type
     toJSON(
         vertexReplacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data,
         edgeReplacer: (this: Graph<vData, eData>, data: eData) => unknown = data => data
-    ) {
+    ): unknown {
         return {
             "@graph": Graph.signature,
             v: Array.from(this.vertices.values()).map(v => v.toJSON(vertexReplacer)),
@@ -100,7 +101,7 @@ export class Graph<vData, eData> {
         json: unknown,
         vertexReviver: (this: Graph<vData, eData>, json: unknown) => vData = data => data as vData,
         edgeReviver: (this: Graph<vData, eData>, json: unknown) => eData = data => data as eData
-    ) {
+    ): Graph<vData, eData> {
         const G = new Graph<vData, eData>()
 
         if (!json || typeof json !== 'object') throw Error("Failed to parse: Unexpected object!")
@@ -172,15 +173,18 @@ export class Vertex<vData, eData> {
      */
     delete() { this.graph.deleteVertex(this) }
 
-    toJSON(replacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data) {
+    // FIXME: return type as tuple
+    toJSON(
+        replacer: (this: Graph<vData, eData>, data: vData) => unknown = data => data
+    ): [unknown, unknown] {
         return [this.id, replacer.call(this.graph, this.data)]
     }
 
-    toString() {
+    toString(): string {
         return Colors.cyan(`<${this.id.slice(0, 8)}>: ${this.data}`)
     }
 
-    [Symbol.for("Deno.customInspect")]() {
+    [Symbol.for("Deno.customInspect")](): string {
         return this.toString()
     }
 }
@@ -225,14 +229,16 @@ export class Edge<vData, eData> {
     }
 
     /** Given one vertex, get the opposite vertex of this edge */
-    not(v: typeof this.u | typeof this.v) {
+    not(v: typeof this.u | typeof this.v): Vertex<vData, eData> {
         return this.v !== v ? this.v : this.u
     }
 
     delete() { this.graph.deleteEdge(this) }
 
-    toJSON(replacer: (this: Graph<vData, eData>, data: eData) => unknown = data => data) {
-        // tuple!
+    // FIXME: Type me as a tuple!
+    toJSON(
+        replacer: (this: Graph<vData, eData>, data: eData) => unknown = data => data
+    ): [unknown, unknown, unknown, unknown, unknown] {
         return [
             this.id,
             this.u.id,
@@ -242,11 +248,11 @@ export class Edge<vData, eData> {
         ]
     }
 
-    toString() {
+    toString(): string {
         return Colors.magenta(`<${this.id.slice(0, 8)}>: ${this.u} ${!this.directed ? '<' : ''}--> ${this.v}`)
     }
 
-    [Symbol.for("Deno.customInspect")]() {
+    [Symbol.for("Deno.customInspect")](): string {
         return this.toString()
     }
 }
@@ -276,7 +282,7 @@ export class Path<vData, eData> {
     }
 
     /** The vertices belonging to this path */
-    get vertices() {
+    get vertices(): Iterable<Vertex<vData, eData>> {
         if (this.#vertices) return this.#vertices
 
         const vertices: Vertex<vData, eData>[] = []
@@ -294,7 +300,7 @@ export class Path<vData, eData> {
         return this.#vertices
     }
 
-    copy() {
+    copy(): Path<vData, eData> {
         const path = new Path<vData, eData>(this.graph, this.start ?? undefined)
         path.edges = this.edges.slice()
         path.#vertices = this.#vertices?.slice() ?? null

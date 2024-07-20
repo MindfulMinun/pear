@@ -35,9 +35,9 @@ export class Stack<T> implements Iterable<T> {
     }
 
     /** The number of elements remaining in the stack */
-    get length() { return this.#head }
+    get length(): number { return this.#head }
 
-    *[Symbol.iterator]() {
+    *[Symbol.iterator](): Generator<NonNullable<T>, void, unknown> {
         while (this.length !== 0) yield this.pop()!
     }
 }

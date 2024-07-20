@@ -1,6 +1,6 @@
 import { fill } from "../../core/iterable.ts"
-import * as Colors from "https://deno.land/std@0.157.0/fmt/colors.ts"
-import { Memo } from "../structures.ts"
+import * as Colors from "@std/fmt/colors"
+import { Memo } from "../structures/Memo.ts"
 
 
 const memodDeterminant = new Memo({
@@ -26,17 +26,17 @@ export class Matrix<M extends number = number, N extends number = number> {
         this.entries = entries
     }
 
-    set(row: number, col: number, value: number) {
+    set(row: number, col: number, value: number): void {
         const offset = this.#calculateOffset(row, col)
         this.entries[offset] = value
     }
 
-    get(row: number, col: number) {
+    get(row: number, col: number): number {
         const offset = this.#calculateOffset(row, col)
         return this.entries[offset]
     }
 
-    copy() {
+    copy(): Matrix<M, N> {
         return new Matrix(this.m, this.n, this.entries.slice())
     }
 
@@ -44,7 +44,9 @@ export class Matrix<M extends number = number, N extends number = number> {
      * Performs naive matrix multiplication.
      * @thorws If the dimensions of the matrices are incompatible.
      */
-    rightMultiply<P extends number, Q extends number>(right: Matrix<P, Q>) {
+    rightMultiply<P extends number, Q extends number>(
+        right: Matrix<P, Q>
+    ): N & P extends never ? never : Matrix<M, Q> {
         if (this.n as number !== right.m as number) {
             throw new Error(`Cannot multiply ${this.m}x${this.n} matrix by ${right.m}x${right.n} matrix.`)
         }
@@ -89,7 +91,8 @@ export class Matrix<M extends number = number, N extends number = number> {
     /**
      * Returns the submatrix obtained by removing the given row and column.
      */
-    laplaceExpansion(row: number, col: number) {
+    // FIXME: Type this correctly
+    laplaceExpansion(row: number, col: number): Matrix {
         const matrix = Matrix.null(this.m - 1, this.n - 1)
         matrix.entries = this.entries.filter((_, i) => {
             const r = Math.floor(i / this.n)
@@ -106,7 +109,7 @@ export class Matrix<M extends number = number, N extends number = number> {
      * @author MindfulMinun
      * @since 2023-01-06
      */
-    toUpperTriangular() {
+    toUpperTriangular(): Matrix<M, N> | null {
         const A = this.copy()
         const { m, n } = A
         for (let i = 0; i < m; i++) {
@@ -171,7 +174,7 @@ export class Matrix<M extends number = number, N extends number = number> {
         }
     }
 
-    toString() {
+    toString(): string {
         let out = ''
         out += 'Matrix<' + this.m + ', ' + this.n + '>['
         out += this.entries.map(e => e.toString()).join(', ')
@@ -179,7 +182,7 @@ export class Matrix<M extends number = number, N extends number = number> {
         return out
     }
 
-    [Symbol.for("Deno.customInspect")]() {
+    [Symbol.for("Deno.customInspect")](): string {
         const strs = this.entries.map(e => e.toString())
         const maxLengths = Array.from(fill(0, this.n))
 
@@ -215,7 +218,7 @@ export class Matrix<M extends number = number, N extends number = number> {
      * Creates a new matrix with the given numbers and entries.
      * All entries are initialized to 0.
      */
-    static null<M extends number, N extends number>(m: M, n: N) {
+    static null<M extends number, N extends number>(m: M, n: N): Matrix<M, N> {
         const zeroes = Array.from(fill(0, m * n))
         return new Matrix(m, n, zeroes)
     }

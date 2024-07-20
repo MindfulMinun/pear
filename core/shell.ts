@@ -38,24 +38,24 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
      * @author MindfulMinun
      * @since 2023-12-26
      */
-    start() { return this.process }
+    start(): Deno.ChildProcess { return this.process }
 
-    get process() {
+    get process(): Deno.ChildProcess {
         if (this.#process) return this.#process
         this.#process = this.cmd.spawn()
         return this.#process
     }
 
-    get  stdin() { return this.process.stdin }
-    get stdout() { return this.process.stdout }
-    get stderr() { return this.process.stderr }
+    get  stdin(): WritableStream<Uint8Array> { return this.process.stdin }
+    get stdout(): ReadableStream<Uint8Array> { return this.process.stdout }
+    get stderr(): ReadableStream<Uint8Array> { return this.process.stderr }
 
-    response(src: 'stdout' | 'stderr' = 'stdout') {
+    response(src: 'stdout' | 'stderr' = 'stdout'): Response {
         const source = this.process[src]
         return new Response(source)
     }
 
-    async code() {
+    async code(): Promise<number> {
         return (await this).code
     }
 
@@ -87,7 +87,7 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
         return this
     }
 
-    async close() {
+    async close(): Promise<this> {
         await this.writer.close()
         return this
     }
@@ -119,7 +119,7 @@ export class Troopa implements PromiseLike<Deno.CommandOutput> {
  * Factory facade to easily interact and run shell scripts
  * @since 2023-11-25
  */
-export default function koopa(opts: Partial<ShellSpawnerOpts> = {}) {
+export default function koopa(opts: Partial<ShellSpawnerOpts> = {}): ShellSpawner<Troopa> {
     const actualOpts: ShellSpawnerOpts = {
         shell: 'bash',
         shellArgs: cmd => ['-c', `${opts.prefix || 'set -euo pipefail'}; ${cmd}`],

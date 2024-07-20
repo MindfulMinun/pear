@@ -37,9 +37,11 @@ export class Queue<T> implements Iterable<T> {
     }
 
     /** The number of elements remaining in the queue */
-    get length() { return this.#tail - this.#head }
+    get length(): number {
+        return this.#tail - this.#head
+    }
 
-    *[Symbol.iterator]() {
+    *[Symbol.iterator](): Generator<NonNullable<T>, void, unknown> {
         while (this.length !== 0) yield this.pop()!
     }
 }

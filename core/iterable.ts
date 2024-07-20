@@ -61,7 +61,7 @@ export function* range(a: number, b?: number, c?: number) {
  * @author MindfulMinun
  * @since 2022-07-07
  */
-export function* limit<T>(count: number, iterable: Iterable<T>) {
+export function* limit<T>(count: number, iterable: Iterable<T>): Generator<T, void, unknown> {
     let i = 0
     for (const value of iterable) {
         if (i < count) {
@@ -77,7 +77,10 @@ export function* limit<T>(count: number, iterable: Iterable<T>) {
  * @author MindfulMinun
  * @since 2022-07-07
  */
-export async function* limitAsync<T>(count: number, iterable: AsyncIterable<T>) {
+export async function* limitAsync<T>(
+    count: number,
+    iterable: AsyncIterable<T>
+): AsyncGenerator<Awaited<T>, void, unknown> {
     let i = 0
     for await (const value of iterable) {
         if (i < count) {

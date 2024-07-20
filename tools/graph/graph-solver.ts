@@ -1,4 +1,4 @@
-import { Graph, Vertex, VertexType, Edge, EdgeType, Path, PathType } from "./graph.ts"
+import { Graph, Vertex, VertexType, Edge, EdgeType, Path, PathType } from "./mod.ts"
 import { Queue } from "../structures/Queue.ts"
 import { Stack } from "../structures/Stack.ts"
 import { BinaryHeap } from "../structures/Heap.ts"
@@ -89,20 +89,24 @@ export class GraphSolver<vData, eData> {
      * @author MindfulMinun
      * @since 2022-11-14
      */
-    bidi(left: Vertex<vData, eData>, right: Vertex<vData, eData>): Path<vData, eData> | null {
-        const qL = new Queue([left])
-        const qR = new Queue([right])
+    bidi({ source, sink, skipEdge }: {
+        source: Vertex<vData, eData>
+        sink: Vertex<vData, eData>
+        skipEdge?: <vData, eData>(e: Edge<vData, eData>, v: Vertex<vData, eData>, g: Graph<vData, eData>) => boolean
+    }): Path<vData, eData> | null {
+        const qL = new Queue([source])
+        const qR = new Queue([sink])
 
         // Map a vertex to the path that led to it. Note that paths from the right
         // will be reversed so they can be concatenated with the paths from the left.
         const backL = new Map<Vertex<vData, eData>, Path<vData, eData>>()
         const backR = new Map<Vertex<vData, eData>, Path<vData, eData>>()
         
-        backL.set(left, this.G.createPath(left))
-        backR.set(right, this.G.createPath(right))
+        backL.set(source, this.G.createPath(source))
+        backR.set(sink, this.G.createPath(sink))
 
-        const seenL = new Set<Vertex<vData, eData>>([left])
-        const seenR = new Set<Vertex<vData, eData>>([right])
+        const seenL = new Set<Vertex<vData, eData>>([source])
+        const seenR = new Set<Vertex<vData, eData>>([sink])
 
         while (qL.length && qR.length) {
             const l = qL.pop()!
@@ -113,6 +117,7 @@ export class GraphSolver<vData, eData> {
             for (const E of l.adjacentEdges) {
                 if (E.directed && l !== E.u) continue
                 const w = E.not(l)
+                if (skipEdge?.(E, l, this.G) || false) continue
                 if (!seenL.has(w)) {
                     seenL.add(w)
                     const path = backL.get(l)!.copy()
@@ -129,6 +134,7 @@ export class GraphSolver<vData, eData> {
                 // Edge u -> v
                 if (E.directed && r !== E.v) continue
                 const w = E.not(r)
+                if (skipEdge?.(E, w, this.G) || false) continue
                 if (!seenR.has(w)) {
                     seenR.add(w)
                     const path = backR.get(r)!.copy()
@@ -166,7 +172,7 @@ export class GraphSolver<vData, eData> {
      * @author MindfulMinun
      * @since 2023-03-30
      */
-    kruskalWithSort() {
+    kruskalWithSort(): Set<Edge<vData, eData>> {
         this.sortEdgesByWeight()
         return this.kruskalPresorted()
     }
@@ -227,5 +233,9 @@ export class GraphSolver<vData, eData> {
             .sort((a, b) => this.G.weights(a) - this.G.weights(b))
             .map(e => [e.id, e] as const)
         this.G.edges = new Map(edges)
+    }
+
+    floydWarshall() {
+
     }
 }

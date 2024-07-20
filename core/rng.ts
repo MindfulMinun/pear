@@ -24,7 +24,7 @@ export abstract class RNG implements Iterable<number> {
      * @author MindfulMinun
      * @since 2022-07-16
      */
-    *[Symbol.iterator]() {
+    *[Symbol.iterator](): Generator<number, void, unknown> {
         while (true) yield this.float()
     }
 
@@ -34,7 +34,7 @@ export abstract class RNG implements Iterable<number> {
      * @author MindfulMinun
      * @since 2022-07-16
      */
-    float() {
+    float(): number {
         return this.nextValue()
     }
 
@@ -55,7 +55,7 @@ export abstract class RNG implements Iterable<number> {
      * @author MindfulMinun
      * @since 2022-07-16
      */
-    choose<T>(arr: T[]) {
+    choose<T>(arr: T[]): T {
         return arr[Math.floor(this.float() * arr.length)]
     }
 
@@ -65,7 +65,7 @@ export abstract class RNG implements Iterable<number> {
      * @author MindfulMinun
      * @since 2022-07-16
      */
-    shuffle<T>(arr: T[]) {
+    shuffle<T>(arr: T[]): T[] {
         let i, j
         for (i = arr.length - 1; i > 0; i--) {
             j = Math.floor(this.float() * (i + 1))
@@ -89,7 +89,7 @@ export abstract class RNG implements Iterable<number> {
      * @author MindfulMinun
      * @since 2022-07-16
      */
-    chooseWithWeights<T>(items: T[], weights: number[]) {
+    chooseWithWeights<T>(items: T[], weights: number[]): T {
         if (items.length != weights.length) throw Error(`Expected items and weights to have the same number of elements, but items has ${items.length} elements, and weights has ${weights.length}.`)
 
         const sumOfWeights = weights.reduce((acc, v) => acc + v)
@@ -113,7 +113,7 @@ export abstract class RNG implements Iterable<number> {
  * @since 2022-07-08
  */
 export class Random extends RNG {
-    nextValue() { return Math.random() }
+    nextValue(): number { return Math.random() }
 }
 
 /**
@@ -125,18 +125,18 @@ export class Mulberry32 extends RNG {
     #seed!: number
     originalSeed!: number
 
-    constructor(seed = Date.now()) {
+    constructor(seed: number = Date.now()) {
         super()
         this.resetSeed(seed)
     }
 
     /** Resets the seed */
-    resetSeed(seed = this.#seed) {
+    resetSeed(seed: number = this.#seed) {
         this.originalSeed = seed
         this.#seed = seed
     }
 
-    nextValue() {
+    nextValue(): number {
         // Mulberry32
         let a = this.#seed
         a |= 0

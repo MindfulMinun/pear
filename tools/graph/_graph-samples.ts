@@ -1,4 +1,4 @@
-import { Graph } from './graph.ts'
+import { Graph } from './mod.ts'
 
 // Box drawing characters!
 // ┌ ┬ ┐ ─│

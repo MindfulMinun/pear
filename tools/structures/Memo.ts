@@ -69,11 +69,11 @@ export class Memo<A extends unknown[], R extends unknown> {
         return result
     }
 
-    get ratio() {
+    get ratio(): number {
         return this.hits / (this.hits + this.misses)
     }
 
-    get fn() {
+    get fn(): (...args: A) => R {
         return this.#memoHandler.bind(this)
     }
 }

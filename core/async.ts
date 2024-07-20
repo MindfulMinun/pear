@@ -46,7 +46,7 @@ export class EventStream<T> implements AsyncIterable<T> {
         this.#promise = new Promise(r => this.#resolve = r)
     }
 
-    async*[Symbol.asyncIterator]() {
+    async*[Symbol.asyncIterator](): AsyncGenerator<Awaited<T>, void, undefined> {
         while (!this.#done) {
             await this.#promise
             yield* this.#events
@@ -74,7 +74,7 @@ export class EventStream<T> implements AsyncIterable<T> {
      * const click = stream.once(ev => ev.type === 'click')
      * @since 2021-12-22
      */
-    once(predicate: (value: T) => boolean) {
+    once(predicate: (value: T) => boolean): Promise<Awaited<T> | undefined> {
         return once(this, predicate)
     }
     
@@ -93,7 +93,7 @@ export class EventStream<T> implements AsyncIterable<T> {
      * @author MindfulMinun
      * @since 2024-06-02
      */
-    each(callback: (value: T) => void) {
+    each(callback: (value: T) => void): Promise<void> {
         return each(this, callback)
     }
 }
@@ -107,7 +107,7 @@ export class EventStream<T> implements AsyncIterable<T> {
  * const click = once(stream, ev => ev.type === 'click')
  * @since 2021-12-22
  */
-export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) => boolean) {
+export async function once<T>(source: AsyncIterable<T>, predicate: (value: T) => boolean): Promise<T | undefined> {
     for await (const value of source) {
         if (predicate(value)) return value
     }
